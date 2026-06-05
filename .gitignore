@@ -1,0 +1,9 @@
+# Python
+__pycache__/
+*.pyc
+
+# Data caches (re-pulled by scripts)
+raw/
+data/raw/
+
+.DS_Store

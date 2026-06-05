@@ -1,0 +1,13 @@
+name: InnovateforIreland_EcosystemEvent
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pandas
+  - numpy
+  - requests
+  - shapely
+  - pyproj
+  - geopandas
+  - matplotlib
+  - openpyxl
