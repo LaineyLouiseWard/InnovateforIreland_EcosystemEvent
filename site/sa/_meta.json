@@ -1,0 +1,73 @@
+{
+ "regions": {
+  "Border": {
+   "file": "sa/border.geojson",
+   "count": 1753,
+   "kb": 2879
+  },
+  "Dublin": {
+   "file": "sa/dublin.geojson",
+   "count": 5076,
+   "kb": 1836
+  },
+  "Mid-East": {
+   "file": "sa/mid-east.geojson",
+   "count": 2484,
+   "kb": 2083
+  },
+  "Mid-West": {
+   "file": "sa/mid-west.geojson",
+   "count": 1922,
+   "kb": 2481
+  },
+  "Midlands": {
+   "file": "sa/midlands.geojson",
+   "count": 1129,
+   "kb": 1367
+  },
+  "South-East": {
+   "file": "sa/south-east.geojson",
+   "count": 1686,
+   "kb": 1904
+  },
+  "South-West": {
+   "file": "sa/south-west.geojson",
+   "count": 2898,
+   "kb": 3441
+  },
+  "West": {
+   "file": "sa/west.geojson",
+   "count": 1971,
+   "kb": 3023
+  }
+ },
+ "missing_join": 0,
+ "breaks": {
+  "r": [
+   3.7,
+   4.85,
+   5.83,
+   6.8,
+   8.07
+  ],
+  "o": [
+   14.29,
+   18.48,
+   22.22,
+   26.32,
+   32.65
+  ],
+  "n": [
+   2.78,
+   5.08,
+   8.33,
+   15.05,
+   28.93
+  ]
+ },
+ "measures": {
+  "r": "Carer rate (%)",
+  "n": "No-car households (%)",
+  "o": "One-person households (%)"
+ }
+}

@@ -6,4 +6,8 @@ __pycache__/
 raw/
 data/raw/
 
+# Archived planning docs (kept local, out of the public repo)
+_archive/
+
 .DS_Store
+.vercel

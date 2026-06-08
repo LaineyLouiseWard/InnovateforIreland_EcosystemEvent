@@ -1,0 +1,133 @@
+{
+  "_meta": {
+    "description": "Curated carer support services for the carer-facing resources panel. Hand-verified, not script-pulled — keep in data/, not data/raw/.",
+    "source_doc": "docs/CARER_SUPPORT_SERVICES.md",
+    "compiled": "2026-06-08",
+    "verification": "Careline number and 2026 financial figures confirmed against live source pages. HSE list/3/carerssupport/* URLs taken from search snippets — re-check before the build.",
+    "currency_note": "Financial figures are 2026 values; re-verify rates/limits against citizensinformation.ie each year."
+  },
+
+  "service_finders": [
+    {
+      "name": "HSE Area Finder",
+      "category": "service_finder",
+      "url": "https://hseareafinder.ie/",
+      "description": "Enter an Eircode or address to find your Community Healthcare Network (CHN) and contacts for Public Health Nursing, Community Specialist Teams for Older People, Chronic Disease teams, and Children's Disability Network Teams. Beta; pitched at healthcare professionals; clinical teams only (no carer-specific supports).",
+      "notes": "CHN boundaries are open on GeoHive and nest within CSO Small Areas — joinable to our need index."
+    },
+    {
+      "name": "HSE Services near you",
+      "category": "service_finder",
+      "url": "https://www2.hse.ie/services/",
+      "description": "Public-facing HSE map to locate services and obtain key contact information."
+    }
+  ],
+
+  "national_supports": [
+    {
+      "name": "Family Carers Ireland",
+      "category": "frontline_carer_org",
+      "phone": "1800 24 07 24",
+      "phone_label": "National Freephone Careline",
+      "hours": "Mon–Thu 09:00–17:30, Fri 09:00–17:00 (Samaritans cover the same number after hours)",
+      "url": "https://www.familycarers.ie/carer-supports/national-freephone-careline/",
+      "description": "~22 support centres; in-home/emergency respite, support groups, training, advocacy on entitlements, counselling, crisis support, young-carer support. Publishes the State of Caring survey."
+    },
+    {
+      "name": "Care Alliance Ireland",
+      "category": "frontline_carer_org",
+      "url": "https://www.carealliance.ie/",
+      "description": "National network of voluntary orgs supporting family carers; Online Family Carer Support Group; searchable national training database; research and policy.",
+      "members_directory": "https://www.carealliance.ie/List-of-members"
+    },
+    {
+      "name": "HSELive",
+      "category": "information_line",
+      "phone": "1800 700 700",
+      "phone_alt": "041 685 0300",
+      "description": "HSE information line for entitlements and local service access."
+    },
+    {
+      "name": "Citizens Information",
+      "category": "information_advocacy",
+      "url": "https://www.citizensinformation.ie/en/social-welfare/carers/payments-and-supports-for-carers/",
+      "description": "Entitlements, advice, and advocacy; national phone line plus local Citizens Information Centres."
+    }
+  ],
+
+  "financial_supports": [
+    {
+      "name": "Carer's Allowance",
+      "category": "payment",
+      "type": "means-tested",
+      "url": "https://www.citizensinformation.ie/en/social-welfare/carers/carers-allowance/",
+      "notes": "Full-time care. Weekly income disregard rises to €1,000 single / €2,000 couple from 2 July 2026."
+    },
+    {
+      "name": "Carer's Benefit",
+      "category": "payment",
+      "type": "PRSI-based",
+      "url": "https://www.citizensinformation.ie/en/social-welfare/carers/carers-benefit/",
+      "notes": "For those who left employment to care. Income limit rises to €1,000/week from July 2026."
+    },
+    {
+      "name": "Carer's Support Grant",
+      "category": "payment",
+      "type": "annual grant",
+      "notes": "Annual lump sum each June; automatic if on Carer's Allowance or Carer's Benefit."
+    },
+    {
+      "name": "Half-rate Carer's Allowance",
+      "category": "payment",
+      "type": "means-tested",
+      "url": "https://www.citizensinformation.ie/en/social-welfare/carers/half-rate-carers-allowance/",
+      "notes": "Payable alongside certain other social welfare payments."
+    },
+    {
+      "name": "Domiciliary Care Allowance",
+      "category": "payment",
+      "type": "monthly payment",
+      "url": "https://www.citizensinformation.ie/en/social-welfare/disability-and-illness/domiciliary-care-allowance/",
+      "notes": "For a child under 16 with a severe disability."
+    }
+  ],
+
+  "hse_services": [
+    {
+      "name": "Home Support Service",
+      "category": "hse_service",
+      "url": "https://www.hse.ie/eng/home-support-services/",
+      "description": "Home help / home care to support older people to stay at home."
+    },
+    {
+      "name": "Primary Care Teams",
+      "category": "hse_service",
+      "description": "Public Health Nurse, occupational therapy, physiotherapy, speech and language therapy."
+    },
+    {
+      "name": "Respite / breaks",
+      "category": "hse_service",
+      "url": "https://www.citizensinformation.ie/en/health/health-services/health-services-for-people-with-disabilities/respite-care/",
+      "description": "Breaks and respite care for carers."
+    },
+    {
+      "name": "Mental-health supports for carers, family and friends",
+      "category": "hse_service",
+      "url": "https://www2.hse.ie/mental-health/services-support/supports-for-carers-family-and-friends/"
+    }
+  ],
+
+  "condition_specific_orgs": {
+    "note": "Care Alliance member organisations — useful for a 'nearest relevant support' angle. Names only here; individual phone/URLs not yet verified.",
+    "directory_url": "https://www.carealliance.ie/List-of-members",
+    "examples": [
+      "Alzheimer Society of Ireland",
+      "ALONE",
+      "Acquired Brain Injury Ireland",
+      "Enable Ireland",
+      "Irish Cancer Society",
+      "Epilepsy Ireland",
+      "Headway"
+    ]
+  }
+}

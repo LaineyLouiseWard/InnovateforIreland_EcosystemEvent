@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — Carer At-Risk Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --v5:#440154; --v4:#414487; --v3:#2a788e; --v2:#22a884; --v1:#7ad151; --v0:#fde725;
+    --ink:#181a2b; --muted:#646a80; --faint:#9aa0b4;
+    --line:#e8e9f1; --bg:#f7f7fb; --card:#ffffff;
+    --accent:#46327e; --accent-deep:#2f2057;
+    --err:#c0392b;
+    --font:"Google Sans Flex","Google Sans","Lexend",-apple-system,BlinkMacSystemFont,sans-serif;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{ font-family:var(--font); color:var(--ink); background:var(--bg);
+    display:flex; flex-direction:column; min-height:100vh;
+    -webkit-font-smoothing:antialiased; }
+
+  /* ---- split layout ---- */
+  .layout{ display:grid; grid-template-columns:1fr 1fr; flex:1; min-height:0; }
+
+  /* left panel — brand / illustration */
+  .brand-panel{
+    background:linear-gradient(155deg, var(--v5) 0%, var(--v4) 40%, var(--v3) 75%, var(--v2) 100%);
+    display:flex; flex-direction:column; justify-content:space-between;
+    padding:clamp(32px,5vw,56px); color:#fff; position:relative; overflow:hidden;
+  }
+  .brand-panel::before{
+    content:""; position:absolute; inset:0;
+    background:radial-gradient(ellipse at 30% 70%, rgba(253,231,37,.12), transparent 60%),
+               radial-gradient(ellipse at 80% 20%, rgba(122,209,81,.08), transparent 55%);
+    pointer-events:none;
+  }
+  .bp-logo{ display:flex; align-items:center; gap:12px; position:relative; }
+  .bp-logo .mark{ width:38px; height:38px; border-radius:12px; background:rgba(255,255,255,.18);
+    backdrop-filter:blur(8px); display:grid; place-items:center; border:1.5px solid rgba(255,255,255,.3); }
+  .bp-logo .mark svg{ width:20px; height:20px; }
+  .bp-logo b{ font-size:17px; font-weight:700; letter-spacing:-.02em; }
+  .bp-logo span{ display:block; font-size:11.5px; opacity:.75; font-weight:400; margin-top:-2px; }
+
+  .bp-copy{ position:relative; }
+  .bp-copy .eyebrow{ font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; opacity:.7; margin-bottom:14px; }
+  .bp-copy h2{ font-size:clamp(26px,3.5vw,40px); font-weight:800; letter-spacing:-.03em; line-height:1.08; }
+  .bp-copy p{ font-size:15px; opacity:.78; line-height:1.55; margin-top:14px; max-width:36ch; }
+
+  .bp-stats{ display:flex; gap:28px; position:relative; }
+  .bp-stat .n{ font-size:26px; font-weight:800; letter-spacing:-.03em; }
+  .bp-stat .l{ font-size:12px; opacity:.7; margin-top:2px; }
+
+  /* right panel — form */
+  .form-panel{ display:flex; align-items:center; justify-content:center; padding:clamp(24px,5vw,56px); }
+  .card{ width:100%; max-width:420px; background:var(--card); border:1px solid var(--line);
+    border-radius:20px; padding:clamp(28px,5vw,44px); box-shadow:0 8px 40px rgba(24,26,43,.10); }
+
+  .card .kicker{ font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--v3); margin-bottom:10px; }
+  .card h1{ font-size:28px; font-weight:800; letter-spacing:-.03em; line-height:1.1; }
+  .card .sub{ font-size:14px; color:var(--muted); margin-top:7px; line-height:1.45; }
+
+  .divider{ border:0; border-top:1px solid var(--line); margin:28px 0; }
+
+  .field{ margin-bottom:18px; }
+  .field label{ display:block; font-size:13.5px; font-weight:600; color:var(--ink); margin-bottom:7px; }
+  .field input{
+    width:100%; font:inherit; font-size:15px; color:var(--ink); background:var(--bg);
+    border:1.5px solid var(--line); border-radius:11px; padding:13px 14px;
+    outline:none; transition:border-color .15s, box-shadow .15s;
+  }
+  .field input:focus{ border-color:var(--accent); box-shadow:0 0 0 4px rgba(70,50,126,.12); background:#fff; }
+  .field input.err{ border-color:var(--err); }
+  .field .err-msg{ font-size:12px; color:var(--err); margin-top:5px; display:none; }
+  .field input.err + .err-msg{ display:block; }
+
+  .row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:26px; gap:12px; }
+  .check-label{ display:flex; align-items:center; gap:9px; font-size:13.5px; color:var(--ink); cursor:pointer; user-select:none; }
+  .check-label input[type=checkbox]{ width:17px; height:17px; border-radius:5px; accent-color:var(--accent); cursor:pointer; }
+  .forgot{ font-size:13.5px; font-weight:600; color:var(--accent); text-decoration:none; white-space:nowrap; }
+  .forgot:hover{ color:var(--accent-deep); text-decoration:underline; }
+
+  .btn-signin{
+    width:100%; font:inherit; font-size:15.5px; font-weight:700; cursor:pointer;
+    background:var(--accent); color:#fff; border:0; border-radius:12px; padding:15px;
+    box-shadow:0 6px 18px rgba(70,50,126,.3); transition:background .15s, box-shadow .2s, transform .1s;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn-signin:hover{ background:var(--accent-deep); box-shadow:0 10px 26px rgba(70,50,126,.4); }
+  .btn-signin:active{ transform:translateY(1px); }
+  .btn-signin svg{ width:17px; height:17px; }
+
+  .card-foot{ text-align:center; margin-top:22px; font-size:13px; color:var(--muted); }
+  .card-foot a{ font-weight:600; color:var(--accent); }
+  .card-foot a:hover{ color:var(--accent-deep); }
+
+  /* forgot-password modal */
+  .overlay{ position:fixed; inset:0; background:rgba(24,26,43,.4); backdrop-filter:blur(4px);
+    z-index:100; display:none; align-items:center; justify-content:center; padding:20px; }
+  .overlay.open{ display:flex; animation:fade .2s ease; }
+  @keyframes fade{ from{opacity:0} to{opacity:1} }
+  .modal{ background:#fff; border-radius:18px; padding:32px; width:100%; max-width:400px;
+    box-shadow:0 20px 60px rgba(24,26,43,.2); }
+  .modal h3{ font-size:20px; font-weight:700; letter-spacing:-.02em; margin-bottom:8px; }
+  .modal p{ font-size:14px; color:var(--muted); line-height:1.5; margin-bottom:20px; }
+  .modal-btns{ display:flex; gap:10px; margin-top:22px; }
+  .btn-ghost{ flex:1; font:inherit; font-size:14.5px; font-weight:600; cursor:pointer;
+    background:#fff; color:var(--ink); border:1.5px solid var(--line); border-radius:10px; padding:12px;
+    transition:background .15s; }
+  .btn-ghost:hover{ background:var(--bg); }
+  .btn-send{ flex:1; font:inherit; font-size:14.5px; font-weight:600; cursor:pointer;
+    background:var(--accent); color:#fff; border:0; border-radius:10px; padding:12px;
+    transition:background .15s; }
+  .btn-send:hover{ background:var(--accent-deep); }
+  .modal-sent{ text-align:center; padding:10px 0; }
+  .modal-sent .tick{ font-size:36px; margin-bottom:10px; }
+  .modal-sent p{ margin:0; }
+
+  @media(max-width:800px){
+    .layout{ grid-template-columns:1fr; }
+    .brand-panel{ display:none; }
+    .form-panel{ padding:28px 20px; }
+    .card{ box-shadow:none; border:0; padding:0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- brand side -->
+  <div class="brand-panel">
+    <div class="bp-logo">
+      <img src="logo.jpg" alt="MedVizion" style="height:40px;width:auto;display:block;border-radius:8px;background:#fff;padding:4px 10px;">
+    </div>
+
+    <div class="bp-copy">
+      <div class="eyebrow">Support services tool</div>
+      <h2>Where carer need concentrates.</h2>
+      <p>Region-by-region data on where unpaid carers are most at risk, so support reaches them before crisis.</p>
+    </div>
+
+    <div class="bp-stats">
+      <div class="bp-stat"><div class="n">299k</div><div class="l">unpaid carers</div></div>
+      <div class="bp-stat"><div class="n">8</div><div class="l">regions mapped</div></div>
+      <div class="bp-stat"><div class="n">3</div><div class="l">at-risk indices</div></div>
+    </div>
+  </div>
+
+  <!-- form side -->
+  <div class="form-panel">
+    <div class="card">
+      <div class="kicker">Welcome back</div>
+      <h1>Sign in</h1>
+      <p class="sub">Enter your credentials to access the carer at-risk map.</p>
+
+      <hr class="divider">
+
+      <form id="form" novalidate>
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" placeholder="your.name@organisation.ie" autocomplete="username">
+          <div class="err-msg">Please enter your username.</div>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password">
+          <div class="err-msg">Please enter your password.</div>
+        </div>
+
+        <div class="row">
+          <label class="check-label">
+            <input type="checkbox" id="remember" name="remember">
+            Remember me
+          </label>
+          <a href="#" class="forgot" id="forgotLink">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn-signin">
+          Sign in
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </form>
+
+      <p class="card-foot">No account? <a href="#">Contact your administrator</a></p>
+    </div>
+  </div>
+
+</div>
+
+<!-- forgot password modal -->
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal">
+    <div id="modalForm">
+      <h3>Reset your password</h3>
+      <p>Enter your username and we'll send a reset link to the email address on your account.</p>
+      <div class="field">
+        <label for="resetUser">Username</label>
+        <input type="text" id="resetUser" placeholder="your.name@organisation.ie">
+      </div>
+      <div class="modal-btns">
+        <button class="btn-ghost" id="modalCancel">Cancel</button>
+        <button class="btn-send" id="modalSend">Send reset link</button>
+      </div>
+    </div>
+    <div id="modalSent" class="modal-sent" style="display:none">
+      <div class="tick">✅</div>
+      <h3>Check your email</h3>
+      <p style="color:var(--muted);font-size:14px;margin-top:8px;line-height:1.5">If that username exists, a password reset link has been sent. Check your inbox.</p>
+      <div class="modal-btns"><button class="btn-send" id="modalClose" style="margin-top:6px">Done</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById("form");
+  const overlay = document.getElementById("overlay");
+
+  // sign in — validate then redirect to the map
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    let ok = true;
+    ["username","password"].forEach(id => {
+      const el = document.getElementById(id);
+      if(!el.value.trim()){ el.classList.add("err"); ok = false; }
+      else el.classList.remove("err");
+    });
+    if(ok) window.location.href = "index.html";
+  });
+  ["username","password"].forEach(id =>
+    document.getElementById(id).addEventListener("input", e => e.target.classList.remove("err"))
+  );
+
+  // forgot password modal
+  document.getElementById("forgotLink").addEventListener("click", e => { e.preventDefault(); overlay.classList.add("open"); });
+  document.getElementById("modalCancel").addEventListener("click", () => overlay.classList.remove("open"));
+  overlay.addEventListener("click", e => { if(e.target===overlay) overlay.classList.remove("open"); });
+  document.getElementById("modalSend").addEventListener("click", () => {
+    document.getElementById("modalForm").style.display = "none";
+    document.getElementById("modalSent").style.display = "block";
+  });
+  document.getElementById("modalClose").addEventListener("click", () => {
+    overlay.classList.remove("open");
+    document.getElementById("modalForm").style.display = "block";
+    document.getElementById("modalSent").style.display = "none";
+  });
+</script>
+</body>
+</html>

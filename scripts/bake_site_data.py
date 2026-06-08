@@ -21,6 +21,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CSV_IN = ROOT / "data" / "carer_rate_nuts3.csv"
+AMP_IN = ROOT / "data" / "amplifiers_nuts3.csv"   # no-car + one-person household % by region
 GEO_IN = ROOT / "data" / "boundaries" / "nuts3_2016.geojson"
 SITE = ROOT / "site"
 JSON_OUT = SITE / "regions.json"
@@ -91,16 +92,21 @@ def build_geojson(region_names):
     """Rewrite the boundary so each feature carries properties.region (the join key),
     rounding coordinates to keep the served file light. Verifies the 8-way join."""
     geo = json.loads(GEO_IN.read_text())
-    feats, geo_names = [], []
+    feats, geo_names, nuts2 = [], [], {}
     for ft in geo["features"]:
         name = ft["properties"]["NUTS3NAME"]
         geo_names.append(name)
+        nuts2[name] = ft["properties"]["NUTS2NAME"]   # super-region, for searchbar grouping
         geom = clean_geometry(ft["geometry"])
         if geom is None:
             raise SystemExit(f"Region {name!r} lost all geometry after simplification.")
         feats.append({
             "type": "Feature",
-            "properties": {"region": name, "nuts3": ft["properties"]["NUTS3"]},
+            "properties": {
+                "region": name,
+                "nuts3": ft["properties"]["NUTS3"],
+                "nuts2name": ft["properties"]["NUTS2NAME"],
+            },
             "geometry": geom,
         })
     # The silent-failure guard: every data region must have a polygon and vice versa.
@@ -110,14 +116,27 @@ def build_geojson(region_names):
         raise SystemExit(
             f"Region-name join FAILED.\n  in CSV, no polygon: {missing}\n  polygon, not in CSV: {extra}"
         )
-    return {"type": "FeatureCollection", "features": feats}, geo_names
+    return {"type": "FeatureCollection", "features": feats}, geo_names, nuts2
 
 
 def main():
     SITE.mkdir(exist_ok=True)
     regions = load_regions()
     region_names = [d["region"] for d in regions]
-    geojson, geo_names = build_geojson(region_names)
+    geojson, geo_names, nuts2 = build_geojson(region_names)
+    for d in regions:
+        d["province"] = nuts2[d["region"]]   # NUTS2 super-region, for the searchbar grouping
+
+    # at-risk amplifiers (no-car households = isolation/access; one-person = lone-recipient/demand)
+    amp = {}
+    with AMP_IN.open() as f:
+        for r in csv.DictReader(f):
+            amp[r["region"]] = (round(float(r["no_car_pct"]), 3), round(float(r["one_person_pct"]), 3))
+    missing_amp = sorted(set(region_names) - set(amp))
+    if missing_amp:
+        raise SystemExit(f"Amplifier data missing for: {missing_amp}")
+    for d in regions:
+        d["noCarPct"], d["lonePct"] = amp[d["region"]]
 
     JSON_OUT.write_text(json.dumps(regions, indent=1))
     GEO_OUT.write_text(json.dumps(geojson))

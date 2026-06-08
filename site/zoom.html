@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carer at-risk — zoom prototype</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --v0:#fde725; --v1:#7ad151; --v2:#22a884; --v3:#2a788e; --v4:#414487; --v5:#440154;
+    --ink:#181a2b; --muted:#646a80; --faint:#9aa0b4;
+    --line:#e8e9f1; --bg:#ffffff; --bg-soft:#f7f7fb; --sea:#eef1f6;
+    --font:"Google Sans","Google Sans Flex",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{ font-family:var(--font); color:var(--ink); background:var(--bg); display:flex; flex-direction:column; }
+  header{ padding:12px 18px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  h1{ font-size:16px; font-weight:700; margin:0; }
+  .sub{ font-size:12px; color:var(--muted); margin-top:2px; }
+  .spacer{ flex:1; }
+  .seg{ display:inline-flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; background:var(--bg-soft); }
+  .seg button{ font-family:inherit; font-size:12.5px; font-weight:600; color:var(--muted); border:0; background:transparent;
+    padding:6px 13px; cursor:pointer; }
+  .seg button[aria-pressed="true"]{ background:var(--ink); color:#fff; }
+  .btn{ font-family:inherit; font-size:12.5px; font-weight:600; padding:7px 14px; border-radius:999px; cursor:pointer;
+    border:1px solid var(--line); background:#fff; color:var(--ink); }
+  .btn:disabled{ opacity:.45; cursor:default; }
+  #map{ flex:1; background:var(--sea); }
+  .leaflet-container{ background:var(--sea); font-family:var(--font); }
+  .legend{ position:absolute; left:18px; top:84px; z-index:600; background:rgba(255,255,255,.94);
+    border:1px solid var(--line); border-radius:12px; padding:11px 13px; box-shadow:0 6px 20px rgba(20,22,40,.08);
+    font-size:12px; min-width:140px; }
+  .legend h4{ margin:0 0 7px; font-size:12px; }
+  .legend .row{ display:flex; align-items:center; gap:8px; margin:3px 0; color:var(--muted); }
+  .legend i{ width:16px; height:12px; border-radius:3px; flex:none; }
+  .legend .foot{ margin-top:8px; color:var(--faint); font-size:11px; max-width:160px; line-height:1.35; }
+  .crumb{ position:absolute; left:50%; transform:translateX(-50%); top:14px; z-index:600;
+    background:rgba(255,255,255,.94); border:1px solid var(--line); border-radius:999px; padding:6px 14px;
+    font-size:12.5px; font-weight:600; box-shadow:0 4px 14px rgba(20,22,40,.08); }
+  .loading{ position:absolute; inset:0; display:none; align-items:center; justify-content:center; z-index:700;
+    background:rgba(238,241,246,.55); font-weight:600; color:var(--muted); }
+  .loading.on{ display:flex; }
+  .leaflet-tooltip.tip{ background:#181a2b; color:#fff; border:0; border-radius:8px; padding:5px 9px;
+    font-family:var(--font); font-size:12px; font-weight:500; box-shadow:0 4px 14px rgba(0,0,0,.25); }
+  .leaflet-tooltip.tip::before{ border-top-color:#181a2b; }
+  .leaflet-tooltip.tip b{ font-weight:700; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Carer at-risk map — zoom prototype</h1>
+    <div class="sub">National regions → click any region to drill into its small areas (~18,919 nationally). CSO Census 2022.</div>
+  </div>
+  <div class="spacer"></div>
+  <div class="seg" id="measures"></div>
+  <button class="btn" id="back" disabled>← National view</button>
+</header>
+
+<div id="map">
+  <div class="crumb" id="crumb">Ireland — 8 regions</div>
+  <div class="legend" id="legend"></div>
+  <div class="loading" id="loading">Loading small areas…</div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const STOPS = ["#fde725","#7ad151","#22a884","#2a788e","#414487","#440154"];
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const fmt  = v => v==null ? "—" : v.toFixed(1)+"%";
+
+let META, REGIONS_GEO, REGIONS_DATA={}, meas="r";
+let regionLayer=null, saLayer=null, current=null;
+const saCache = {};
+
+const map = L.map("map",{ preferCanvas:true, zoomControl:false, attributionControl:false,
+                          zoomSnap:.25, minZoom:5.5, maxZoom:13 });
+const canvas = L.canvas({ padding:.5 });
+
+function colour(v, breaks){
+  if(v==null) return "#d9dce5";
+  let i=0; while(i<breaks.length && v>breaks[i]) i++;
+  return STOPS[i];
+}
+
+function drawLegend(){
+  const m = META.measures[meas], breaks = META.breaks[meas];
+  const lo = [`< ${breaks[0]}%`];
+  for(let i=0;i<breaks.length-1;i++) lo.push(`${breaks[i]} – ${breaks[i+1]}%`);
+  lo.push(`> ${breaks[breaks.length-1]}%`);
+  let html = `<h4>${m}</h4>`;
+  lo.forEach((lab,i)=> html += `<div class="row"><i style="background:${STOPS[i]}"></i>${lab}</div>`);
+  html += `<div class="foot">Equal-count classes from all 18,919 small areas. Area-level rates, not individuals.</div>`;
+  document.getElementById("legend").innerHTML = html;
+}
+
+// ---- national view ----
+function styleRegion(f){
+  const v = (REGIONS_DATA[f.properties.region]||{})[META.measures_key[meas]];
+  return { fillColor:colour(v, META.breaks[meas]), fillOpacity:.82, color:"#fff", weight:1.2 };
+}
+function regionTip(name){
+  const d = REGIONS_DATA[name]||{};
+  return `<b>${name}</b><br>Carer rate ${fmt(d.carerRate)} · #${d.rankNow} of 8`
+       + `<br><span style="opacity:.8">click to zoom in</span>`;
+}
+function showNational(){
+  if(saLayer){ map.removeLayer(saLayer); saLayer=null; }
+  current=null;
+  document.getElementById("back").disabled=true;
+  document.getElementById("crumb").textContent="Ireland — 8 regions";
+  if(!regionLayer){
+    regionLayer = L.geoJSON(REGIONS_GEO,{ renderer:canvas, style:styleRegion,
+      onEachFeature:(f,l)=>{
+        l.bindTooltip(()=>regionTip(f.properties.region),{className:"tip",sticky:true,direction:"top",opacity:1});
+        l.on("click",()=>drillInto(f.properties.region));
+      }}).addTo(map);
+  } else { regionLayer.addTo(map); regionLayer.setStyle(styleRegion); }
+  map.fitBounds(regionLayer.getBounds(),{padding:[20,20]});
+}
+
+// ---- drill into a region's small areas ----
+function saStyle(f){
+  return { fillColor:colour(f.properties[meas], META.breaks[meas]), fillOpacity:.85, color:"#ffffff", weight:.25 };
+}
+function saTip(p){
+  return `<b>SA ${p.c}</b><br>Carer rate ${fmt(p.r)} · no-car ${fmt(p.n)} · lone ${fmt(p.o)}`;
+}
+async function drillInto(name){
+  const info = META.regions[name]; if(!info) return;
+  if(regionLayer) map.removeLayer(regionLayer);
+  const load = document.getElementById("loading"); load.classList.add("on");
+  current=name;
+  try{
+    let fc = saCache[name];
+    if(!fc){ fc = await (await fetch(info.file)).json(); saCache[name]=fc; }
+    saLayer = L.geoJSON(fc,{ renderer:canvas, style:saStyle,
+      onEachFeature:(f,l)=> l.bindTooltip(()=>saTip(f.properties),{className:"tip",sticky:true,opacity:1}) }).addTo(map);
+    map.fitBounds(saLayer.getBounds(),{padding:[16,16]});
+    document.getElementById("crumb").textContent = `${name} — ${info.count.toLocaleString()} small areas`;
+    document.getElementById("back").disabled=false;
+  } finally { load.classList.remove("on"); }
+}
+
+function recolour(){
+  drawLegend();
+  if(saLayer) saLayer.setStyle(saStyle);
+  else if(regionLayer) regionLayer.setStyle(styleRegion);
+}
+
+function buildMeasures(){
+  const seg = document.getElementById("measures");
+  Object.entries(META.measures).forEach(([k,label])=>{
+    const b=document.createElement("button");
+    b.textContent = label.replace(/ \(%\)$/,"");
+    b.setAttribute("aria-pressed", k===meas);
+    b.onclick=()=>{ meas=k; [...seg.children].forEach(c=>c.setAttribute("aria-pressed", c===b)); recolour(); };
+    seg.appendChild(b);
+  });
+}
+
+Promise.all([
+  fetch("regions.geojson").then(r=>r.json()),
+  fetch("regions.json").then(r=>r.json()),
+  fetch("sa/_meta.json").then(r=>r.json()),
+]).then(([geo, data, meta])=>{
+  REGIONS_GEO=geo; META=meta;
+  data.forEach(d=> REGIONS_DATA[d.region]=d);
+  // map measure key -> field name in regions.json
+  META.measures_key = { r:"carerRate", n:"noCarPct", o:"lonePct" };
+  buildMeasures();
+  drawLegend();
+  showNational();
+  document.getElementById("back").onclick=showNational;
+});
+</script>
+</body>
+</html>
