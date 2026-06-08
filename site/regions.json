@@ -1,0 +1,82 @@
+[
+ {
+  "region": "West",
+  "carers2022": 30838,
+  "population2022": 485966,
+  "carerRate": 6.346,
+  "rankNow": 1,
+  "province": "Northern and Western",
+  "noCarPct": 11.201,
+  "lonePct": 25.191
+ },
+ {
+  "region": "South-West",
+  "carers2022": 46083,
+  "population2022": 740614,
+  "carerRate": 6.222,
+  "rankNow": 2,
+  "province": "Southern",
+  "noCarPct": 12.517,
+  "lonePct": 24.42
+ },
+ {
+  "region": "Border",
+  "carers2022": 25945,
+  "population2022": 419473,
+  "carerRate": 6.185,
+  "rankNow": 3,
+  "province": "Northern and Western",
+  "noCarPct": 11.564,
+  "lonePct": 26.493
+ },
+ {
+  "region": "Mid-West",
+  "carers2022": 31003,
+  "population2022": 505369,
+  "carerRate": 6.135,
+  "rankNow": 4,
+  "province": "Southern",
+  "noCarPct": 12.305,
+  "lonePct": 24.92
+ },
+ {
+  "region": "South-East",
+  "carers2022": 28031,
+  "population2022": 457410,
+  "carerRate": 6.128,
+  "rankNow": 5,
+  "province": "Southern",
+  "noCarPct": 11.948,
+  "lonePct": 23.853
+ },
+ {
+  "region": "Midlands",
+  "carers2022": 18991,
+  "population2022": 317999,
+  "carerRate": 5.972,
+  "rankNow": 6,
+  "province": "Eastern and Midland",
+  "noCarPct": 11.146,
+  "lonePct": 22.649
+ },
+ {
+  "region": "Mid-East",
+  "carers2022": 42145,
+  "population2022": 764154,
+  "carerRate": 5.515,
+  "rankNow": 7,
+  "province": "Eastern and Midland",
+  "noCarPct": 9.901,
+  "lonePct": 18.918
+ },
+ {
+  "region": "Dublin",
+  "carers2022": 76092,
+  "population2022": 1458154,
+  "carerRate": 5.218,
+  "rankNow": 8,
+  "province": "Eastern and Midland",
+  "noCarPct": 21.966,
+  "lonePct": 22.118
+ }
+]
