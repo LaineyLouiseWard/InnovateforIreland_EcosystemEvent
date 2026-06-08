@@ -1,0 +1,32 @@
+{
+ "nursing_homes": {
+  "source": 543,
+  "mapped": 543,
+  "precision": {
+   "address": 329,
+   "town": 207,
+   "county": 7
+  }
+ },
+ "fci_centres": {
+  "source": 16,
+  "mapped": 16,
+  "precision": {
+   "town": 9,
+   "address": 7
+  }
+ },
+ "homecare_agencies": {
+  "source_rows": 504,
+  "distinct": 206,
+  "mapped": 201,
+  "precision": {
+   "town": 147,
+   "address": 27,
+   "county": 27,
+   "none": 5
+  }
+ },
+ "geocoder": "OSM Nominatim",
+ "roi_only": true
+}

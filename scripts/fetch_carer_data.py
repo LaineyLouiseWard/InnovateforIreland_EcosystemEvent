@@ -6,7 +6,7 @@ Source: CSO PxStat JSON-stat API — keyless, open, no login.
   https://ws.cso.ie/public/api.restful/PxStat.Data.Cube_API.ReadDataset/<CODE>/JSON-stat/2.0/en
 Accessed: 2026-06-08
 
-Tables (see docs/carer-data-summary.txt / docs/DATA.md):
+Tables (see docs/DATA.md):
   SAP2022T12T2NUTS  carers by NUTS3 region        SAP2022T1T1NUTS  population by NUTS3
   SAP2022T12T2SA    carers by small area          SAP2022T1T1SA    population by small area
 

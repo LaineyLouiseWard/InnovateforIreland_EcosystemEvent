@@ -1,0 +1,21 @@
+iha_code,iha_name,health_region,sa_count,population,pop_65plus,mean_vulnerability,provider_count,providers_per_1k_65plus,pr_vulnerability,pr_provider_density,market_gap_score,rank
+53,HSE Kerry IHA,HSE South West HR,692,156458,29567,53.94,10,0.338,82.5,2.5,80.0,1
+61,HSE Donegal IHA,HSE West and North West HR,684,159227,28130,58.96,15,0.533,97.5,37.5,60.0,2
+33,HSE Waterford Wexford IHA,HSE Dublin and South East HR,1138,302955,50121,53.5,24,0.479,77.5,27.5,50.0,3
+41,HSE Clare and Limerick County IHA,HSE Midwest HR,839,219584,37824,48.35,17,0.449,47.5,17.5,30.0,4
+51,HSE Cork North and East IHA,HSE South West HR,1055,284323,42216,48.33,18,0.426,42.5,12.5,30.0,5
+31,HSE Carlow Kilkenny and Tipperary South IHA,HSE Dublin and South East HR,904,246765,40970,51.85,23,0.561,72.5,47.5,25.0,6
+42,HSE Limerick City and Tipperary North IHA,HSE Midwest HR,726,193287,30441,51.38,18,0.591,67.5,52.5,15.0,7
+62,HSE Galway Roscommon IHA,HSE West and North West HR,1346,347996,55927,47.68,26,0.465,37.5,22.5,15.0,8
+63,HSE Mayo IHA,HSE West and North West HR,625,137970,27328,56.39,24,0.878,92.5,77.5,15.0,9
+14,HSE Midlands IHA,HSE Dublin and Midlands HR,1129,317999,46637,51.31,28,0.6,62.5,57.5,5.0,10
+64,HSE Sligo Leitrim IHA,HSE West and North West HR,515,114313,21186,54.63,22,1.038,87.5,87.5,0.0,11
+52,HSE Cork South and West IHA,HSE South West HR,1151,299833,47245,43.26,18,0.381,7.5,7.5,0.0,12
+21,HSE Cavan Monaghan IHA,HSE Dublin and North East HR,542,142452,22339,50.09,17,0.761,52.5,62.5,-10.0,13
+24,HSE Louth Meath IHA,HSE Dublin and North East HR,1171,363864,47282,44.7,25,0.529,22.5,32.5,-10.0,14
+32,HSE Dublin South and Wicklow IHA,HSE Dublin and South East HR,1481,421064,68393,43.56,38,0.556,12.5,42.5,-30.0,15
+22,HSE Dublin North City and West IHA,HSE Dublin and North East HR,1389,396039,45797,45.35,35,0.764,27.5,67.5,-40.0,16
+23,HSE Dublin North County IHA,HSE Dublin and North East HR,929,284727,39467,46.86,31,0.785,32.5,72.5,-40.0,17
+12,HSE Dublin South West IHA,HSE Dublin and Midlands HR,674,208621,27838,51.21,39,1.401,57.5,97.5,-40.0,18
+11,HSE Dublin South City and West IHA,HSE Dublin and Midlands HR,1255,343616,42230,44.57,38,0.9,17.5,82.5,-65.0,19
+13,HSE Kildare West Wicklow IHA,HSE Dublin and Midlands HR,671,207403,25211,40.78,27,1.071,2.5,92.5,-90.0,20

@@ -7,7 +7,17 @@
   "rankNow": 1,
   "province": "Northern and Western",
   "noCarPct": 11.201,
-  "lonePct": 25.191
+  "lonePct": 25.191,
+  "vMean": 54.04,
+  "clMean": 56.3,
+  "stMean": 53.1,
+  "dmMean": 53.23,
+  "isMean": 53.54,
+  "sdMean": 35.38,
+  "prdMean": 60.69,
+  "vP05": 27.2,
+  "vP95": 80.9,
+  "vTop10": 335
  },
  {
   "region": "South-West",
@@ -17,7 +27,17 @@
   "rankNow": 2,
   "province": "Southern",
   "noCarPct": 12.517,
-  "lonePct": 24.42
+  "lonePct": 24.42,
+  "vMean": 51.3,
+  "clMean": 54.92,
+  "stMean": 44.65,
+  "dmMean": 52.59,
+  "isMean": 53.04,
+  "sdMean": 32.72,
+  "prdMean": 60.57,
+  "vP05": 24.4,
+  "vP95": 76.8,
+  "vTop10": 323
  },
  {
   "region": "Border",
@@ -27,7 +47,17 @@
   "rankNow": 3,
   "province": "Northern and Western",
   "noCarPct": 11.564,
-  "lonePct": 26.493
+  "lonePct": 26.493,
+  "vMean": 58.52,
+  "clMean": 54.2,
+  "stMean": 69.22,
+  "dmMean": 53.93,
+  "isMean": 56.72,
+  "sdMean": 40.74,
+  "prdMean": 66.32,
+  "vP05": 35.4,
+  "vP95": 81.5,
+  "vTop10": 311
  },
  {
   "region": "Mid-West",
@@ -37,7 +67,17 @@
   "rankNow": 4,
   "province": "Southern",
   "noCarPct": 12.305,
-  "lonePct": 24.92
+  "lonePct": 24.92,
+  "vMean": 53.61,
+  "clMean": 53.76,
+  "stMean": 54.73,
+  "dmMean": 54.59,
+  "isMean": 51.37,
+  "sdMean": 31.62,
+  "prdMean": 56.26,
+  "vP05": 26.2,
+  "vP95": 78.7,
+  "vTop10": 282
  },
  {
   "region": "South-East",
@@ -47,7 +87,17 @@
   "rankNow": 5,
   "province": "Southern",
   "noCarPct": 11.948,
-  "lonePct": 23.853
+  "lonePct": 23.853,
+  "vMean": 54.6,
+  "clMean": 53.57,
+  "stMean": 61.65,
+  "dmMean": 55.47,
+  "isMean": 47.71,
+  "sdMean": 28.16,
+  "prdMean": 50.76,
+  "vP05": 32.0,
+  "vP95": 75.4,
+  "vTop10": 176
  },
  {
   "region": "Midlands",
@@ -57,7 +107,17 @@
   "rankNow": 6,
   "province": "Eastern and Midland",
   "noCarPct": 11.146,
-  "lonePct": 22.649
+  "lonePct": 22.649,
+  "vMean": 54.56,
+  "clMean": 52.0,
+  "stMean": 64.87,
+  "dmMean": 50.13,
+  "isMean": 51.25,
+  "sdMean": 32.92,
+  "prdMean": 58.4,
+  "vP05": 31.8,
+  "vP95": 75.2,
+  "vTop10": 115
  },
  {
   "region": "Mid-East",
@@ -67,7 +127,17 @@
   "rankNow": 7,
   "province": "Eastern and Midland",
   "noCarPct": 9.901,
-  "lonePct": 18.918
+  "lonePct": 18.918,
+  "vMean": 46.9,
+  "clMean": 45.29,
+  "stMean": 48.25,
+  "dmMean": 44.82,
+  "isMean": 49.24,
+  "sdMean": 27.86,
+  "prdMean": 57.85,
+  "vP05": 22.0,
+  "vP95": 72.5,
+  "vTop10": 143
  },
  {
   "region": "Dublin",
@@ -77,6 +147,16 @@
   "rankNow": 8,
   "province": "Eastern and Midland",
   "noCarPct": 21.966,
-  "lonePct": 22.118
+  "lonePct": 22.118,
+  "vMean": 42.35,
+  "clMean": 42.54,
+  "stMean": 37.1,
+  "dmMean": 44.86,
+  "isMean": 44.9,
+  "sdMean": 11.25,
+  "prdMean": 25.84,
+  "vP05": 18.3,
+  "vP95": 70.3,
+  "vTop10": 209
  }
 ]

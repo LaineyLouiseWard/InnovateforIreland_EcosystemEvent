@@ -1,0 +1,27 @@
+{
+ "_meta": {
+  "description": "Family Carers Ireland support centres (distinct physical offices). Hand-verified from familycarers.ie/carer-supports/get-support/, kept in data/ (not data/raw/) as a curated source like carer_supports.json.",
+  "source": "https://www.familycarers.ie/carer-supports/get-support/",
+  "compiled": "2026-06-08",
+  "note": "FCI organises support by county (28 county listings) but staffs ~17 distinct physical centres; many counties share one office (e.g. Citywest serves Dublin, Kildare and Wicklow). The 15 below have a full published address + Eircode; Waterford is published town-only; Louth and Meath share a phone line (041 9710158) with no published address and are omitted from the map.",
+  "roi_only": true
+ },
+ "centres": [
+  {"name": "Kilkenny", "address": "Butler Court, 14 Patrick Street, Kilkenny", "town": "Kilkenny", "county": "Kilkenny", "eircode": "R95 FT9X", "phone": "056 7721424", "serves": ["Carlow", "Kilkenny"]},
+  {"name": "Cavan", "address": "Farnham Street, Cavan", "town": "Cavan", "county": "Cavan", "eircode": "H12 D1W7", "phone": "042 9740423", "serves": ["Cavan"]},
+  {"name": "Ennis", "address": "Suite 21, Clare Technology Park, Ennis", "town": "Ennis", "county": "Clare", "eircode": "V95 E970", "phone": "065 6866515", "serves": ["Clare", "Tipperary North"]},
+  {"name": "Cork (South Mall)", "address": "Republic Of Work, 12 South Mall, Cork", "town": "Cork", "county": "Cork", "eircode": "T12 RD43", "phone": "021 4806398", "serves": ["Cork"]},
+  {"name": "Sligo", "address": "53 St Brigid's Place, Sligo", "town": "Sligo", "county": "Sligo", "eircode": "F91 YY59", "phone": "071 9143128", "serves": ["Donegal", "Leitrim", "Sligo"]},
+  {"name": "Dublin (Citywest)", "address": "Unit 8, 4075 Kingswood Road, Citywest Business Campus, Dublin 24", "town": "Dublin", "county": "Dublin", "eircode": "D24 F212", "phone": "01 9068897", "serves": ["Dublin North", "Dublin South", "Kildare", "Wicklow"]},
+  {"name": "Tuam", "address": "St. Jarlath's Court, The Glebe, Tuam", "town": "Tuam", "county": "Galway", "eircode": "H54 HP08", "phone": "093 30061", "serves": ["Galway"]},
+  {"name": "Cork (Tuckey Street)", "address": "9 Tuckey Street, Cork", "town": "Cork", "county": "Cork", "eircode": "T12 WF2P", "phone": "066 7107357", "serves": ["Kerry"]},
+  {"name": "Tullamore", "address": "Market Square, Tullamore", "town": "Tullamore", "county": "Offaly", "eircode": "R35 PW50", "phone": "057 9351999", "serves": ["Laois", "Offaly"]},
+  {"name": "Limerick", "address": "Unit 1, Georges Quay House, Georges Quay, Limerick", "town": "Limerick", "county": "Limerick", "eircode": "V94 CK06", "phone": "061 310434", "serves": ["Limerick"]},
+  {"name": "Mullingar", "address": "First Floor, Harbour House, Harbour Street, Mullingar", "town": "Mullingar", "county": "Westmeath", "eircode": "N91 DE72", "phone": "044 9347922", "serves": ["Longford", "Westmeath"]},
+  {"name": "Roscommon", "address": "19 Abbey Street, Roscommon Town", "town": "Roscommon", "county": "Roscommon", "eircode": "F42 H264", "phone": "094 9041148", "serves": ["Mayo", "Roscommon"]},
+  {"name": "Castleblayney", "address": "The Lodge, Shercock Road, Castleblayney", "town": "Castleblayney", "county": "Monaghan", "eircode": "A75 PD83", "phone": "042 9740423", "serves": ["Monaghan"]},
+  {"name": "Clonmel", "address": "Place4U Building, 25 Gladstone Street, Clonmel", "town": "Clonmel", "county": "Tipperary", "eircode": "E91 HK51", "phone": "052 7447101", "serves": ["Tipperary South"]},
+  {"name": "Wexford", "address": "24 Henrietta Street, Wexford", "town": "Wexford", "county": "Wexford", "eircode": "Y35 WC59", "phone": "053 9140511", "serves": ["Wexford"]},
+  {"name": "Waterford", "address": "Waterford", "town": "Waterford", "county": "Waterford", "eircode": "", "phone": "051 872626", "serves": ["Waterford"]}
+ ]
+}

@@ -22,7 +22,7 @@ Python 3.12 + geopandas/pandas/matplotlib. Add new deps to `environment.yml` (no
 
 ## Data
 
-Follow the [the-indices-of-ireland](https://github.com/LaineyLouiseWard/the-indices-of-ireland) pattern: **keyless open data** → join to a boundary → draw with Leaflet. If a source needs a login or API key, it's the wrong source.
+**Keyless open data** → join to a boundary → draw with Leaflet. If a source needs a login or API key, it's the wrong source.
 
 - Each fetch script names its source URL and access date (a comment or `SOURCES.md`), so anyone can re-pull.
 - `raw/` and `data/raw/` are gitignored — commit the code that fetches and processes, not the downloads.

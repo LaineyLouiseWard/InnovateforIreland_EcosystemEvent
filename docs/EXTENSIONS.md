@@ -18,7 +18,7 @@ I'll sort them).
   is not a lone household); read it as a lone care-recipient / demand signal instead.
 - **Carer strain projection:** project carer *supply* (current carer-by-age rates ×
   projected age structure) and map demand ÷ supply. The headline "at-risk projection."
-  Method in [MODELLING.md](MODELLING.md).
+  Method in [MODELLING.md](../_archive/MODELLING.md).
 - **Support-service overlay:** plot Family Carers Ireland centres / the `carer_supports`
   data and show distance-to-nearest-service ("service deserts").
 - **HSE-geography view:** a service-aligned cut (Community Health Networks / Specialist

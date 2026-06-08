@@ -1,0 +1,11 @@
+{
+ "n": 20,
+ "breaks": [
+  -40.0,
+  0.0,
+  15.0,
+  30.0
+ ],
+ "measure": "Market Gap Score = PR(vulnerability) \u2212 PR(provider density per 1k 65+)",
+ "note": "20 HSE Integrated Healthcare Areas. Range -100 to +100; higher = more demand than approved home-support supply (need rank above supply rank). Percentile ranks across the 20 IHAs; a difference, not a ratio, so the magnitude is comparable and stable."
+}

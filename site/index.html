@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Carer At-Risk Map of Ireland</title>
-<meta name="description" content="Where unpaid carers in Ireland are most at risk — carer rate and bivariate at-risk indices, Census 2022.">
+<title>Carer Vulnerability Map of Ireland</title>
+<meta name="description" content="Where unpaid carers in Ireland are most at risk — a small-area Vulnerability score from Census 2022, drillable from region to neighbourhood to operator market gap.">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,7 +37,7 @@
   .brand{ display:flex; align-items:center; margin-right:auto; }
   .tabs{ display:flex; gap:2px; }
   .tab{ font:inherit; font-size:14.5px; font-weight:600; color:var(--muted); cursor:pointer; background:none;
-    border:0; padding:8px 14px; border-radius:9px; position:relative; transition:color .15s, background .15s; }
+    border:0; padding:8px 14px; border-radius:9px; position:relative; white-space:nowrap; transition:color .15s, background .15s; }
   .tab:hover{ color:var(--ink); background:var(--bg-soft); }
   .tab[aria-selected="true"]{ color:var(--accent); }
   .tab[aria-selected="true"]::after{ content:""; position:absolute; left:14px; right:14px; bottom:-1px;
@@ -45,6 +45,7 @@
   .nav-chip{ font-size:12px; font-weight:600; color:var(--muted); padding:5px 11px;
     border:1px solid var(--line); border-radius:999px; background:var(--bg-soft); }
   @media(max-width:620px){ .nav-chip{ display:none; } }
+  @media(max-width:560px){ nav{ gap:2px; padding:0 12px; } .brand img{ height:32px; } .tab{ padding:8px 8px; font-size:13px; } .tab[aria-selected="true"]::after{ left:8px; right:8px; } }
 
   .view{ display:none; }
   .view.active{ display:block; animation:fade .4s ease both; }
@@ -61,7 +62,8 @@
   .hero .eyebrow{ font-size:13px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--teal); margin-bottom:16px; animation:rise .6s .02s both; }
   .hero h1{ font-size:clamp(34px,5.4vw,60px); font-weight:800; letter-spacing:-.035em; animation:rise .6s .08s both; }
   .hero h1 .hl{ background:linear-gradient(transparent 58%, #b9e88f 58%); padding:0 .04em; }
-  .hero p.lede{ font-size:clamp(16px,1.7vw,19px); color:var(--muted); line-height:1.55; margin:22px 0 30px; max-width:46ch; animation:rise .6s .16s both; }
+  .hero p.lede{ font-size:clamp(16px,1.7vw,19px); color:var(--muted); line-height:1.55; margin:22px 0 30px; max-width:48ch; animation:rise .6s .16s both; }
+  .hero p.lede b{ color:var(--ink); font-weight:700; }
   .cta-row{ display:flex; gap:12px; flex-wrap:wrap; animation:rise .6s .24s both; }
   .btn{ font:inherit; font-size:15px; font-weight:600; cursor:pointer; border-radius:11px; padding:13px 22px;
     border:1px solid transparent; display:inline-flex; align-items:center; gap:9px; transition:transform .12s, box-shadow .2s, background .2s; }
@@ -81,7 +83,7 @@
   .scale-ends{ display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-top:6px; }
   .stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:clamp(36px,6vw,64px); }
   .stat{ background:var(--bg-soft); border:1px solid var(--line-soft); border-radius:var(--r); padding:20px 18px; animation:rise .6s both; }
-  .stat .n{ font-size:clamp(26px,3vw,34px); font-weight:800; letter-spacing:-.03em; }
+  .stat .n{ font-size:clamp(22px,3vw,32px); font-weight:800; letter-spacing:-.03em; }
   .stat .l{ font-size:13px; color:var(--muted); margin-top:4px; line-height:1.35; }
   .stat .n .u{ font-size:.55em; font-weight:700; color:var(--muted); }
   .explain{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin-top:clamp(40px,6vw,72px); }
@@ -95,22 +97,45 @@
   /* ---------------- MAP VIEW ---------------- */
   #map-view{ position:fixed; inset:var(--nav-h) 0 0 0; flex-direction:column; }
   #map-view.active{ display:flex; }
-  .toolbar{ display:flex; align-items:center; gap:14px; padding:11px clamp(14px,3vw,26px) 9px; background:var(--bg); z-index:20; flex-wrap:wrap; }
-  .toolbar .ti{ margin-right:auto; }
-  .toolbar .ti b{ font-size:15px; font-weight:700; letter-spacing:-.02em; }
-  .toolbar .ti span{ display:block; font-size:12px; color:var(--muted); margin-top:1px; }
-  /* index sub-tabs */
-  .subtabs{ display:flex; align-items:center; gap:7px; padding:0 clamp(14px,3vw,26px) 11px; border-bottom:1px solid var(--line); background:var(--bg); flex-wrap:wrap; z-index:20; }
-  .subtab{ font:inherit; font-size:13.5px; font-weight:600; cursor:pointer; color:var(--muted); background:var(--bg-soft);
-    border:1px solid var(--line); border-radius:999px; padding:7px 15px; transition:all .15s; display:inline-flex; align-items:center; gap:8px; }
-  .subtab:hover{ color:var(--ink); border-color:#cfd2e0; }
-  .subtab[aria-selected="true"]{ color:#fff; background:var(--accent); border-color:var(--accent); box-shadow:0 4px 12px rgba(70,50,126,.28); }
-  .subtab .dot{ width:9px; height:9px; border-radius:3px; box-shadow:inset 0 0 0 1px rgba(0,0,0,.12); }
-  .subtab[aria-selected="true"] .dot{ box-shadow:inset 0 0 0 1px rgba(255,255,255,.5); }
-  .idx-blurb{ font-size:12.5px; color:var(--muted); margin-left:6px; max-width:560px; line-height:1.35; }
-  @media(max-width:760px){ .idx-blurb{ display:none; } }
+  .toolbar{ display:flex; align-items:center; gap:14px; padding:11px clamp(14px,3vw,26px) 10px; background:var(--bg);
+    z-index:20; flex-wrap:wrap; }
+  /* zoom breadcrumb — the "how local" axis, kept visually distinct from the "Showing" lens control */
+  .zoombar{ display:flex; align-items:center; gap:11px; padding:0 clamp(14px,3vw,26px) 10px; background:var(--bg); border-bottom:1px solid var(--line); z-index:20; flex-wrap:wrap; }
+  .zb-lab{ font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--faint); }
+  .crumbs{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+  .crumb{ font:inherit; font-size:13px; font-weight:600; color:var(--accent); background:none; border:0; cursor:pointer; padding:3px 4px; border-radius:7px; }
+  .crumb:hover{ background:var(--bg-soft); }
+  .crumb.cur{ color:var(--ink); cursor:default; }
+  .crumb.cur:hover{ background:none; }
+  .crumb .cz{ color:var(--faint); font-weight:500; font-size:11.5px; }
+  .csep{ color:var(--faint); font-size:13px; }
+  .toolbar .ti b{ font-size:16px; font-weight:800; letter-spacing:-.02em; }
+  .toolbar .ti span{ display:block; font-size:12px; color:var(--muted); margin-top:1px; max-width:42ch; }
+  .toolbar .combo{ margin-left:auto; }
 
-  .combo{ position:relative; width:min(300px,68vw); }
+  /* measure selector (Vulnerability headline + the five "why" measures) */
+  .msel{ position:relative; display:flex; align-items:center; gap:9px; }
+  .msel-lab{ font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--faint); }
+  .msel-btn{ font:inherit; font-size:14.5px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:9px;
+    background:var(--bg-soft); border:1.5px solid var(--line); border-radius:12px; padding:9px 14px; color:var(--ink); transition:border-color .15s, box-shadow .15s, background .15s; }
+  .msel-btn:hover{ border-color:#cfd2e0; }
+  .msel-btn[aria-expanded="true"]{ border-color:var(--accent); box-shadow:0 0 0 4px rgba(70,50,126,.12); background:#fff; }
+  .msel-dot{ width:12px; height:12px; border-radius:4px; flex:none; box-shadow:inset 0 0 0 1px rgba(0,0,0,.12); }
+  .msel-btn svg{ width:15px; height:15px; color:var(--muted); }
+  .msel-pop{ position:absolute; top:calc(100% + 8px); left:0; width:320px; max-width:86vw; background:#fff; border:1px solid var(--line);
+    border-radius:13px; box-shadow:var(--shadow-lg); padding:6px; z-index:80; display:none; }
+  .msel-pop.open{ display:block; animation:rise .16s ease both; }
+  .msel-grp{ font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); padding:9px 10px 4px; }
+  .msel-opt{ display:flex; align-items:flex-start; gap:11px; padding:9px 10px; border-radius:9px; cursor:pointer; }
+  .msel-opt:hover,.msel-opt:focus-visible{ background:var(--bg-soft); outline:none; }
+  .msel-opt.on{ background:rgba(70,50,126,.07); }
+  .msel-odot{ width:13px; height:13px; border-radius:4px; margin-top:2px; flex:none; box-shadow:inset 0 0 0 1px rgba(0,0,0,.08); }
+  .msel-otxt{ flex:1; display:flex; flex-direction:column; }
+  .msel-otxt b{ font-size:14px; font-weight:700; }
+  .msel-otxt span{ font-size:12px; color:var(--muted); line-height:1.35; margin-top:1px; }
+  .msel-tick{ color:var(--accent); font-weight:800; margin-top:1px; }
+
+  .combo{ position:relative; width:min(280px,68vw); }
   .combo .field{ display:flex; align-items:center; gap:9px; background:var(--bg-soft); border:1.5px solid var(--line);
     border-radius:12px; padding:0 12px; transition:border-color .15s, box-shadow .15s; }
   .combo .field:focus-within{ border-color:var(--accent); box-shadow:0 0 0 4px rgba(70,50,126,.12); background:#fff; }
@@ -128,7 +153,6 @@
   .opt .sw{ width:14px; height:14px; border-radius:4px; flex:none; box-shadow:inset 0 0 0 1px rgba(0,0,0,.08); }
   .opt .nm{ font-size:14px; font-weight:600; flex:1; }
   .opt .rt{ font-size:12.5px; color:var(--muted); }
-  .opt .rk{ font-size:11px; color:var(--faint); margin-left:8px; }
   .btn-sm{ font:inherit; font-size:13.5px; font-weight:600; cursor:pointer; border-radius:10px; padding:9px 15px;
     border:1px solid var(--line); background:#fff; color:var(--ink); display:inline-flex; align-items:center; gap:7px; transition:background .15s; }
   .btn-sm:hover{ background:var(--bg-soft); }
@@ -142,27 +166,47 @@
   .leaflet-overlay-pane path{ animation:fade .5s ease both; }
   #map.ready .leaflet-overlay-pane path{ transition:fill .3s, fill-opacity .25s, stroke-width .15s, stroke .15s; }
 
-  .legend{ position:absolute; top:18px; left:18px; z-index:500; width:228px; background:#fff; border:1px solid var(--line);
-    border-radius:var(--r); box-shadow:var(--shadow); padding:15px 16px 14px; }
+  /* left rail = legend + supply, stacked */
+  .leftrail{ position:absolute; top:18px; left:18px; z-index:500; width:236px; display:flex; flex-direction:column; gap:12px;
+    max-height:58%; overflow:auto; }
+  .legend{ background:#fff; border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow); padding:15px 16px 14px; }
   .legend h4{ font-size:13.5px; font-weight:700; }
   .legend .sub{ font-size:11.5px; color:var(--muted); margin:2px 0 12px; }
   .lrow{ display:flex; align-items:center; gap:10px; padding:3px 0; }
   .lrow .sw{ width:24px; height:15px; border-radius:4px; flex:none; box-shadow:inset 0 0 0 1px rgba(0,0,0,.06); }
   .lrow .rng{ font-size:12.5px; color:var(--ink); font-variant-numeric:tabular-nums; }
   .legend .foot{ margin-top:12px; padding-top:11px; border-top:1px solid var(--line-soft); font-size:10.5px; color:var(--muted); line-height:1.45; font-style:italic; }
+  .note-region{ margin-top:11px; padding:9px 11px; border-radius:10px; background:#f3f0fb; border:1px solid #e4ddf6;
+    font-size:11px; color:#4a3f6b; line-height:1.45; }
+  .note-region b{ color:var(--accent-deep); }
+  .note-region.area{ background:#eef7f4; border-color:#d6ece4; color:#1f5a52; }
+  .note-region.area b{ color:#10463f; }
   /* bivariate 3×3 legend */
-  .biv{ display:grid; grid-template-columns:14px 1fr; grid-template-rows:1fr 16px; gap:6px 7px; margin:4px 0 2px; }
-  .biv .yl{ grid-column:1; grid-row:1; writing-mode:vertical-rl; transform:rotate(180deg); font-size:10.5px; color:var(--muted);
-    display:flex; align-items:center; justify-content:center; gap:5px; }
+  .biv{ display:grid; grid-template-columns:14px 1fr; grid-template-rows:1fr 16px; gap:6px 7px; margin:6px 0 2px; }
+  .biv .yl{ grid-column:1; grid-row:1; writing-mode:vertical-rl; transform:rotate(180deg); font-size:10.5px; color:var(--muted); display:flex; align-items:center; justify-content:center; gap:5px; }
   .biv .grid{ grid-column:2; grid-row:1; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,22px); gap:2px; }
   .biv .grid i{ border-radius:3px; box-shadow:inset 0 0 0 1px rgba(0,0,0,.05); }
-  .biv .grid i.here{ box-shadow:inset 0 0 0 2px var(--ink); }
   .biv .xl{ grid-column:2; grid-row:2; font-size:10.5px; color:var(--muted); display:flex; align-items:center; justify-content:center; gap:5px; }
   .biv .arrow{ font-size:11px; }
   .biv-corner{ font-size:10px; color:var(--faint); margin-top:7px; }
 
-  .detail{ position:absolute; top:18px; right:18px; z-index:500; width:290px; max-width:calc(100vw - 36px); background:#fff;
-    border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow-lg); padding:18px 19px 19px;
+  /* supply card */
+  .supply-card{ background:#fff; border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow); padding:13px 15px; font-size:12.5px; }
+  .supply-card h4{ font-size:13px; font-weight:700; margin-bottom:4px; }
+  .supply-card .sc-sub{ font-size:11px; color:var(--muted); margin-bottom:8px; line-height:1.4; }
+  .supply-card label{ display:flex; align-items:center; gap:8px; margin:6px 0; cursor:pointer; }
+  .supply-card label.ctx{ color:var(--muted); }
+  .supply-card .dot{ width:12px; height:12px; border-radius:50%; flex:none; border:1.5px solid #fff; box-shadow:0 0 0 1px rgba(20,22,40,.3); }
+  .supply-card .dot.nursing{ background:#e8743b; opacity:.55; }
+  .supply-card .dot.homecare{ background:#2563b0; }
+  .supply-card .dot.fci{ background:#d6206e; border-radius:3px; }
+  .supply-card label span.cnt{ margin-left:auto; color:var(--faint); font-size:11px; font-variant-numeric:tabular-nums; }
+  .supply-card .divider{ margin:9px 0 3px; padding-top:8px; border-top:1px solid var(--line-soft); font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--faint); }
+  .supply-card .ctx-note{ margin-top:6px; padding:7px 9px; border-radius:8px; background:#fbf4ef; border:1px solid #f0e0d4; font-size:10.5px; color:#7a5230; line-height:1.4; }
+  .supply-card .foot{ margin-top:8px; font-size:10.5px; color:var(--muted); line-height:1.45; font-style:italic; }
+
+  .detail{ position:absolute; top:18px; right:18px; z-index:500; width:300px; max-width:calc(100vw - 36px); background:#fff;
+    border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow-lg); padding:18px 19px 19px; max-height:calc(100% - 36px); overflow:auto;
     transform:translateX(calc(100% + 26px)); opacity:0; transition:transform .32s cubic-bezier(.2,.8,.2,1), opacity .25s; pointer-events:none; }
   .detail.open{ transform:none; opacity:1; pointer-events:auto; }
   .detail .x{ position:absolute; top:11px; right:12px; border:0; background:none; cursor:pointer; color:var(--faint); font-size:20px; line-height:1; padding:3px; }
@@ -177,33 +221,126 @@
   .detail .big-l{ font-size:12.5px; color:var(--muted); margin-top:4px; }
   .gauge{ height:8px; border-radius:5px; margin:15px 0 4px; position:relative; }
   .gauge .pin{ position:absolute; top:50%; width:13px; height:13px; border-radius:50%; background:#fff; border:2.5px solid var(--ink); transform:translate(-50%,-50%); box-shadow:0 1px 4px rgba(0,0,0,.3); }
-  .gauge .nat{ position:absolute; top:-4px; bottom:-4px; width:2px; background:var(--ink); opacity:.45; transform:translateX(-50%); }
   .gauge-ends{ display:flex; justify-content:space-between; font-size:10.5px; color:var(--faint); }
+  .mbreak-h{ font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--faint); margin:17px 0 9px; }
+  .mbreak{ display:flex; flex-direction:column; gap:8px; }
+  .mb-row{ display:grid; grid-template-columns:78px 1fr 24px; align-items:center; gap:9px; font-size:12px; }
+  .mb-row .mb-l{ color:var(--muted); }
+  .mb-row.on .mb-l{ font-weight:700; color:var(--ink); }
+  .mb-bar{ height:7px; border-radius:4px; background:var(--line-soft); overflow:hidden; }
+  .mb-bar i{ display:block; height:100%; border-radius:4px; }
+  .mb-v{ text-align:right; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; }
+  /* spread bar + hidden-hotspot badge (the colour trap turned into a call-to-action) */
+  .spread{ margin:11px 0 2px; }
+  .sp-track{ position:relative; height:8px; border-radius:5px; background:var(--line-soft); }
+  .sp-range{ position:absolute; top:0; bottom:0; border-radius:5px; background:linear-gradient(90deg,var(--v1),var(--v3),var(--v5)); opacity:.6; }
+  .sp-mean{ position:absolute; top:-3px; width:3px; height:14px; border-radius:2px; background:var(--ink); transform:translateX(-50%); }
+  .sp-lab{ display:flex; justify-content:space-between; font-size:10.5px; color:var(--muted); margin-top:5px; font-variant-numeric:tabular-nums; }
+  .hotspot{ display:flex; gap:8px; align-items:flex-start; margin-top:12px; padding:9px 11px; border-radius:10px; background:#fbf0f4; border:1px solid #efd6e2; font-size:11.5px; color:#7a1d54; line-height:1.42; }
+  .hotspot b{ color:#5e1640; }
   .drow{ display:flex; justify-content:space-between; gap:14px; font-size:13.5px; padding-top:9px; margin-top:9px; border-top:1px solid var(--line-soft); }
-  .drow:first-of-type{ margin-top:14px; }
+  .drow:first-of-type{ margin-top:15px; }
   .drow .k{ color:var(--muted); } .drow .v{ font-weight:700; font-variant-numeric:tabular-nums; }
-  .drow .v.delta-pos{ color:#7a1d6b; } .drow .v.delta-neg{ color:var(--teal); }
+  .zoom-btn{ display:block; width:100%; margin-top:14px; font:inherit; font-size:13.5px; font-weight:600;
+    padding:10px 14px; border-radius:10px; border:1.5px solid var(--accent); background:transparent;
+    color:var(--accent); cursor:pointer; text-align:left; transition:background .15s; }
+  .zoom-btn:hover{ background:rgba(70,50,126,.07); }
+  .gap-link{ display:block; width:100%; margin-top:9px; font:inherit; font-size:12.5px; font-weight:600; padding:9px 12px;
+    border-radius:10px; border:1px solid var(--line); background:var(--bg-soft); color:var(--accent); cursor:pointer; text-align:left; transition:background .15s, border-color .15s; }
+  .gap-link:hover{ background:#fff; border-color:#cfd2e0; }
 
-  .attrib{ position:absolute; bottom:12px; left:18px; z-index:400; font-size:10.5px; color:var(--muted);
-    background:rgba(255,255,255,.82); backdrop-filter:blur(4px); border:1px solid var(--line-soft); border-radius:8px; padding:5px 9px; max-width:min(440px,70vw); line-height:1.5; }
-  .leaflet-tooltip.tip{ background:#181a2b; color:#fff; border:0; border-radius:8px; padding:5px 9px; font-family:var(--font); font-size:12px; font-weight:500; box-shadow:0 4px 14px rgba(0,0,0,.25); }
+  /* service-desert panel (Service desert measure only) */
+  .desert-card{ position:absolute; left:18px; bottom:16px; z-index:520; width:312px; max-width:calc(100vw - 36px);
+    max-height:38%; overflow:auto; background:#fff; border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow-lg);
+    padding:13px 15px; font-size:12px; display:none; }
+  .desert-card.on{ display:block; animation:rise .2s ease both; }
+  .desert-card h4{ font-size:13px; font-weight:700; margin-bottom:3px; }
+  .desert-card .d-sub{ font-size:11px; color:var(--muted); margin-bottom:9px; line-height:1.4; }
+  .desert-card label.tg{ display:flex; align-items:center; gap:8px; cursor:pointer; color:var(--ink); font-weight:600; margin-bottom:9px; font-size:12.5px; }
+  .desert-card table{ border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; }
+  .desert-card th{ text-align:left; color:var(--faint); font-weight:700; font-size:10px; letter-spacing:.04em; text-transform:uppercase;
+    border-bottom:1px solid var(--line); padding:4px 5px; position:sticky; top:0; background:#fff; }
+  .desert-card td{ padding:5px 5px; border-bottom:1px solid var(--line-soft); }
+  .desert-card tr.r{ cursor:pointer; }
+  .desert-card tr.r:hover td{ background:var(--bg-soft); }
+  .desert-card td.sc{ font-weight:800; color:var(--v5); text-align:right; }
+  .desert-card td.di{ color:var(--muted); }
+  .desert-card .ap{ color:var(--faint); }
+  .desert-card .foot{ margin-top:9px; padding-top:9px; border-top:1px solid var(--line-soft); color:var(--muted); font-size:10.5px; line-height:1.4; font-style:italic; }
+
+  .attrib{ position:absolute; bottom:12px; right:18px; z-index:400; font-size:10.5px; color:var(--muted);
+    background:rgba(255,255,255,.82); backdrop-filter:blur(4px); border:1px solid var(--line-soft); border-radius:8px; padding:5px 9px; max-width:min(440px,60vw); line-height:1.5; }
+  .leaflet-tooltip.tip{ background:#181a2b; color:#fff; border:0; border-radius:8px; padding:6px 10px; font-family:var(--font); font-size:12px; font-weight:500; box-shadow:0 4px 14px rgba(0,0,0,.25); max-width:240px; }
   .leaflet-tooltip.tip::before{ border-top-color:#181a2b; }
   .leaflet-tooltip.tip b{ font-weight:700; }
 
   @media(max-width:680px){
-    .legend{ left:12px; top:12px; width:178px; padding:12px; }
-    .detail{ left:12px; right:12px; width:auto; top:auto; bottom:12px; transform:translateY(calc(100% + 24px)); }
+    .toolbar .ti span{ display:none; }
+    .leftrail{ left:12px; top:12px; width:176px; max-height:52%; }
+    .supply-card .ctx-note,.supply-card .foot,.supply-card .sc-sub{ display:none; }
+    .legend .note-region{ font-size:10.5px; }
+    .detail{ left:12px; right:12px; width:auto; top:auto; bottom:12px; transform:translateY(calc(100% + 24px)); max-height:60%; }
     .detail.open{ transform:none; }
+    .desert-card{ left:12px; right:12px; width:auto; bottom:12px; max-height:46%; }
     .attrib{ display:none; }
   }
   .loading-sa{ position:absolute; inset:0; display:none; align-items:center; justify-content:center; z-index:700;
     background:rgba(238,241,246,.6); backdrop-filter:blur(3px); font-family:var(--font); font-size:14px;
     font-weight:600; color:var(--muted); gap:10px; }
   .loading-sa.on{ display:flex; }
-  .zoom-btn{ display:block; width:100%; margin-top:14px; font:inherit; font-size:13.5px; font-weight:600;
-    padding:10px 14px; border-radius:10px; border:1.5px solid var(--accent); background:transparent;
-    color:var(--accent); cursor:pointer; text-align:left; transition:background .15s; }
-  .zoom-btn:hover{ background:rgba(70,50,126,.07); }
+
+  /* ---------------- MARKET GAP (IHA) VIEW ---------------- */
+  #gap-view{ position:fixed; inset:var(--nav-h) 0 0 0; flex-direction:column; }
+  #gap-view.active{ display:flex; }
+  .gap-stage{ position:relative; flex:1 1 auto; min-height:0; overflow:hidden; }
+  #gapMap{ position:absolute; inset:0; background:var(--sea); }
+  #gapMap.ready .leaflet-overlay-pane path{ transition:fill .3s, fill-opacity .25s, stroke-width .15s, stroke .15s; }
+  #gap-view .legend{ position:absolute; top:18px; left:18px; width:236px; }
+  .gap-panel{ position:absolute; top:18px; right:18px; z-index:500; width:340px; max-width:calc(100vw - 36px);
+    background:#fff; border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow-lg);
+    display:flex; flex-direction:column; max-height:calc(100% - 36px); }
+  .gap-panel header{ padding:15px 17px 12px; border-bottom:1px solid var(--line-soft); }
+  .gap-panel header h3{ font-size:16px; }
+  .gap-panel header p{ margin:5px 0 0; font-size:11.5px; color:var(--muted); line-height:1.45; }
+  .gap-list{ overflow:auto; padding:6px; }
+  .gap-row{ display:flex; align-items:center; gap:10px; padding:8px 9px; border-radius:9px; cursor:pointer; }
+  .gap-row:hover,.gap-row.active{ background:var(--bg-soft); }
+  .gap-row .rk{ font-size:12px; font-weight:700; color:var(--faint); width:20px; text-align:right; font-variant-numeric:tabular-nums; }
+  .gap-row .sw{ width:12px; height:12px; border-radius:3px; flex:none; box-shadow:inset 0 0 0 1px rgba(0,0,0,.08); }
+  .gap-row .nm{ font-size:13px; font-weight:600; flex:1; line-height:1.2; }
+  .gap-row .sc{ font-size:12.5px; font-weight:700; font-variant-numeric:tabular-nums; }
+  /* capstone "Target your supply here" answer card */
+  .gap-panel.mode-detail .gap-list, .gap-panel.mode-detail #gapHead{ display:none; }
+  .gap-detail{ display:none; flex-direction:column; min-height:0; }
+  .gap-panel.mode-detail .gap-detail{ display:flex; }
+  .gap-back{ font:inherit; font-size:12.5px; font-weight:600; color:var(--accent); background:none; border:0; cursor:pointer; padding:13px 16px 8px; text-align:left; }
+  .gap-back:hover{ text-decoration:underline; }
+  .ans-head{ padding:0 17px 13px; border-bottom:1px solid var(--line-soft); }
+  .ans-rank{ font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--teal); }
+  .ans-head h3{ font-size:12.5px; font-weight:600; color:var(--muted); margin:6px 0 0; }
+  .ans-head h3 b{ display:block; font-size:20px; font-weight:800; color:var(--ink); letter-spacing:-.025em; margin-top:3px; }
+  .ans-stats{ display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+  .ans-stat{ background:var(--bg-soft); border:1px solid var(--line-soft); border-radius:9px; padding:6px 10px; font-size:10.5px; color:var(--muted); line-height:1.3; }
+  .ans-stat b{ display:block; font-size:16px; font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums; letter-spacing:-.02em; }
+  .ans-cap{ margin-top:11px; padding:8px 10px; border-radius:9px; background:#fbf4ef; border:1px solid #f0e0d4; font-size:10.5px; color:#7a5230; line-height:1.42; }
+  .ans-cap b{ color:#5e3d18; }
+  .ans-th{ padding:12px 17px 6px; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--faint); }
+  .twrap{ overflow:auto; padding:0 9px; flex:1 1 auto; min-height:0; }
+  table.twn{ border-collapse:collapse; width:100%; }
+  table.twn th{ position:sticky; top:0; background:#fff; text-align:left; font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--faint); border-bottom:1px solid var(--line); padding:5px 7px; }
+  table.twn th.r{ text-align:right; }
+  table.twn td{ padding:7px; border-bottom:1px solid var(--line-soft); font-size:12px; vertical-align:top; }
+  table.twn tr.r{ cursor:pointer; }
+  table.twn tr.r:hover td{ background:var(--bg-soft); }
+  table.twn td.t b{ font-weight:700; }
+  table.twn td.km{ color:var(--faint); font-size:10.5px; }
+  table.twn td.sc{ font-weight:800; color:var(--v5); text-align:right; font-variant-numeric:tabular-nums; }
+  .pbadge{ display:inline-block; font-size:9px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; border-radius:5px; padding:1px 5px; margin-left:5px; vertical-align:middle; }
+  .pbadge.town{ background:#fff4e0; color:#9a6a1a; }
+  .pbadge.county{ background:#fde2e2; color:#a3262a; }
+  .gap-foot{ padding:11px 15px; border-top:1px solid var(--line-soft); }
+  .gap-foot .btn-sm{ width:100%; justify-content:center; }
+  @media(max-width:680px){ #gap-view .legend{ left:12px; top:12px; width:176px; } .gap-panel{ left:12px; right:12px; top:auto; bottom:12px; width:auto; max-height:54%; } }
 </style>
 </head>
 <body>
@@ -215,6 +352,7 @@
   <div class="tabs" role="tablist">
     <button class="tab" id="tab-home" role="tab" aria-selected="true" data-view="home">Home</button>
     <button class="tab" id="tab-map" role="tab" aria-selected="false" data-view="map">Heatmap</button>
+    <button class="tab" id="tab-gap" role="tab" aria-selected="false" data-view="gap">Market Gap</button>
   </div>
   <span class="nav-chip">Area-level rates</span>
 </nav>
@@ -226,10 +364,11 @@
       <div class="eyebrow">Where care strain concentrates</div>
       <h1>See where Ireland's <span class="hl">unpaid carers</span> are most at risk.</h1>
       <p class="lede">Almost 300,000 people provide unpaid care — many older, poorer or isolated themselves.
-        This map starts from the Census 2022 carer rate, then crosses it with socioeconomic risk factors to
-        show where carers are most likely to be stretched — region by region.</p>
+        We combine four Census&nbsp;2022 need signals into one <b>Vulnerability</b> score for every one of
+        Ireland's 18,919 Census small areas — then let you drill from region, to neighbourhood, to the
+        service areas care operators plan around.</p>
       <div class="cta-row">
-        <button class="btn btn-primary" data-view="map">Open the heatmap
+        <button class="btn btn-primary" data-view="map">Open the map
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <a class="btn btn-ghost" href="https://www.cso.ie" target="_blank" rel="noopener">About the data</a>
@@ -237,10 +376,10 @@
     </div>
     <div class="hero-fig">
       <div class="card">
-        <h3>Carer rate by region — Census 2022</h3>
+        <h3>Carer vulnerability by region — Census 2022</h3>
         <div class="bars" id="heroBars"></div>
         <div class="scale"><i style="background:var(--v0)"></i><i style="background:var(--v1)"></i><i style="background:var(--v2)"></i><i style="background:var(--v3)"></i><i style="background:var(--v4)"></i><i style="background:var(--v5)"></i></div>
-        <div class="scale-ends"><span>Fewer carers</span><span>More carers</span></div>
+        <div class="scale-ends"><span>Lower need</span><span>Greater need</span></div>
       </div>
     </div>
   </section>
@@ -248,26 +387,35 @@
   <section class="stats" id="homeStats"></section>
 
   <section class="explain">
-    <div><div class="h">What it shows</div><h3>Carer rate, region by region</h3>
-      <p>The share of each region's people who are unpaid carers (Census 2022) — the carer-load base measure,
-         coloured yellow (fewest) to purple (most).</p></div>
-    <div><div class="h">The at-risk indices</div><h3>Carer load × a risk factor</h3>
-      <p>Each at-risk index crosses the carer rate with one socioeconomic factor — transport isolation,
-         lone households — to show where carers face both at once. No invented weights.</p></div>
-    <div><div class="h">How to read it</div><h3>Search, click, switch index</h3>
-      <p>Pick a region to zoom in and see its figures, and switch index tabs to change which risk factor
-         is crossed with the carer rate.</p></div>
+    <div><div class="h">What it shows</div><h3>Vulnerability, area by area</h3>
+      <p>One score from 0–100 for each small area, combining carer load, area deprivation, care demand and
+         isolation. Higher means carers there are likelier to be stretched.</p></div>
+    <div><div class="h">The six measures</div><h3>The "why" behind the score</h3>
+      <p>Vulnerability is the headline. Switch to Care load, Strain, Demand, Isolation or Service desert to
+         see which factor is driving the need — no invented weights.</p></div>
+    <div><div class="h">Three levels</div><h3>Region → small area → operator</h3>
+      <p>Start national, click a region to see its small areas, then open the Market Gap view that ranks the
+         20 HSE service areas where home-support providers apply to operate.</p></div>
   </section>
 
-  <div class="note-strip"><b>Area-level rates, not individuals.</b> Open census data shows where carers and
-    risk factors concentrate by area — it can't identify who they are, or measure a factor for carers
-    specifically. Click any region on the heatmap, then <em>Drill into small areas</em> to see all ~18,000 Census small areas.</div>
+  <div class="note-strip"><b>Area-level rates, not individuals.</b> Open census data shows where need
+    concentrates by area — it can't identify who carers are. Scores are percentile ranks from 0–100
+    (<em>not</em> percentages). Click a region on the map, then <em>drill into small areas</em> to see the
+    local spread that a regional average hides.</div>
 </main>
 
-<!-- ============ MAP ============ -->
+<!-- ============ MAP (Vulnerability, region → small area) ============ -->
 <section id="map-view" class="view" role="tabpanel" aria-labelledby="tab-map" aria-hidden="true">
   <div class="toolbar">
-    <div class="ti"><b id="idxTitle">Carer rate by region</b><span>Census 2022 · 8 NUTS3 regions</span></div>
+    <div class="ti"><b id="idxTitle">Vulnerability</b><span id="idxSub">The headline score — how stretched carers here are likely to be.</span></div>
+    <div class="msel" id="msel">
+      <span class="msel-lab">Showing</span>
+      <button class="msel-btn" id="mselBtn" aria-haspopup="listbox" aria-expanded="false" aria-label="Choose a measure to map">
+        <span class="msel-dot" id="mselDot"></span><span id="mselCur">Vulnerability</span>
+        <svg viewBox="0 0 24 24" fill="none"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="msel-pop" id="mselPop" role="listbox" aria-label="Measures"></div>
+    </div>
     <div class="combo" id="combo">
       <div class="field">
         <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -281,78 +429,174 @@
       National view
     </button>
   </div>
-  <div class="subtabs" id="subtabs" role="tablist"></div>
+  <div class="zoombar"><span class="zb-lab" title="How local — click to zoom out">Zoom</span><nav class="crumbs" id="crumbs" aria-label="Zoom level"></nav></div>
 
   <div class="stage">
     <div id="map"></div>
-    <aside class="legend"><div id="legendBox"></div></aside>
+    <div class="leftrail">
+      <aside class="legend"><div id="legendBox"></div></aside>
+      <aside class="supply-card" id="supplyCard">
+        <h4>Care services on the map</h4>
+        <div class="sc-sub">Where support physically exists — toggle to spot dark (high-need) areas with no dots nearby.</div>
+        <label><input type="checkbox" data-layer="homecare"><i class="dot homecare"></i>Home-care agencies <span class="cnt" id="c-homecare"></span></label>
+        <label><input type="checkbox" data-layer="fci"><i class="dot fci"></i>Family Carers centres <span class="cnt" id="c-fci"></span></label>
+        <div class="divider">Context only</div>
+        <label class="ctx"><input type="checkbox" data-layer="nursing"><i class="dot nursing"></i>Nursing homes <span class="cnt" id="c-nursing"></span></label>
+        <div class="ctx-note"><b>Nursing homes don't drive the Service-desert score</b> — they're a residential alternative, not the in-home support that keeps a carer going. Shown for context.</div>
+        <div class="foot">Office locations (ROI), not where care is delivered. Many home-care offices geocode only to the town, so treat the dots as approximate.</div>
+      </aside>
+    </div>
     <aside class="detail" id="detail" aria-live="polite"><button class="x" id="detailX" aria-label="close">×</button><div id="detailBody"></div></aside>
-    <div class="attrib">Data: CSO Census 2022 — carers, households &amp; cars by NUTS3 — CC BY 4.0. Boundaries: Tailte Éireann / GeoHive.</div>
+    <aside class="desert-card" id="desertCard">
+      <h4>Greatest unmet need — service deserts</h4>
+      <div class="d-sub">High vulnerability with the nearest carer support far away.</div>
+      <label class="tg"><input type="checkbox" id="topToggle"> Highlight the worst 100 areas on the map</label>
+      <table id="desertTable"></table>
+      <div class="foot">Vulnerability × distance to the nearest carer support (home-care / Family Carers). Distance is from each area's centre to the nearest office — not where care is delivered.</div>
+    </aside>
+    <div class="attrib">Data: CSO Census 2022 &amp; Pobal HP Deprivation 2022. Boundaries: Tailte Éireann / GeoHive — CC BY 4.0.</div>
     <div class="loading-sa" id="loadingSA">Loading small areas…</div>
+  </div>
+</section>
+
+<!-- ============ MARKET GAP (IHA) — the operator level ============ -->
+<section id="gap-view" class="view" role="tabpanel" aria-labelledby="tab-gap" aria-hidden="true">
+  <div class="toolbar">
+    <div class="ti"><b>Market Gap — the operator view</b><span>20 HSE Integrated Healthcare Areas · the same need, rolled up to the service areas providers apply to operate in</span></div>
+    <button class="btn-sm" id="gapBack" style="margin-left:auto">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to the need map
+    </button>
+    <button class="btn-sm" id="gapCsv">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Download CSV
+    </button>
+  </div>
+  <div class="gap-stage">
+    <div id="gapMap"></div>
+    <aside class="legend"><div id="gapLegendBox"></div></aside>
+    <aside class="gap-panel">
+      <header id="gapHead">
+        <h3>Unmet demand, ranked</h3>
+        <p>Level 3 — operators. Each HSE area scored by how far its need rank sits above its home-support
+           supply rank. Higher = bigger market gap. <b>Click an area to target it.</b></p>
+      </header>
+      <div class="gap-list" id="gapList"></div>
+      <div class="gap-detail" id="gapDetail"></div>
+    </aside>
+    <div class="attrib">Vulnerability: Plan&nbsp;1 composite (CSO Census 2022, Pobal). Providers: HSE approved home-support lists (2025), counted per area. Boundaries: GeoHive HSE IHAs 2025 — CC&nbsp;BY&nbsp;4.0.</div>
   </div>
 </section>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// ================= at-risk indices: every index is anchored on the carer rate =================
-const VIRIDIS = ["#fde725","#7ad151","#22a884","#2a788e","#414487","#440154"]; // reversed: low→high
-// Stevens 3×3 bivariate palette  BIV[carerClass][ampClass]  (0=low … 2=high); [2][2]=worst on both
+// ================= measures: Vulnerability is the headline; five "why" measures behind it =================
+const VIRIDIS = ["#fde725","#7ad151","#22a884","#2a788e","#414487","#440154"]; // low → high need
+const NO_DATA = "#dfe1ea";
+const NATIONAL_CARER = 5.81;
+
+const MEASURES = {
+  v:  { label:"Vulnerability", sub:"The headline score — how stretched carers here are likely to be.",
+        gloss:"Overall need — four themes combined into one 0–100 score." },
+  cl: { label:"Care load",   sub:"What drives it — how many people here are unpaid carers.",
+        gloss:"Share of people who are unpaid carers (the base load)." },
+  st: { label:"Strain",      sub:"What drives it — area deprivation pressing on households.",
+        gloss:"Pobal HP deprivation — economic pressure on the area." },
+  dm: { label:"Demand",      sub:"What drives it — how much care the population needs.",
+        gloss:"Disability rate + over-65 share — who needs care." },
+  is: { label:"Isolation",   sub:"What drives it — how cut off from services people are.",
+        gloss:"No-car households — distance from help." },
+  sd: { label:"Service desert", sub:"Need × distance to the nearest home-care / Family Carers office.",
+        gloss:"High need with no carer support nearby." },
+};
+const MEAS_KEYS = Object.keys(MEASURES);
+const MEAN_KEY = { v:"vMean", cl:"clMean", st:"stMean", dm:"dmMean", is:"isMean", sd:"sdMean" };
+let MEAS = "v";
+
+// bivariate lenses (Stevens 3×3): the need axis (Vulnerability) crossed with a supply / isolation axis.
+const TLAB = ["lower","middle","higher"];
 const BIV = [
   ["#e8e8e8","#ace4e4","#5ac8c8"],
   ["#dfb0d6","#a5add3","#5698b9"],
   ["#be64ac","#8c62aa","#3b4994"],
 ];
-const NO_DATA = "#dfe1ea";
-const NATIONAL = { carerRate:5.81, noCarPct:14.39, lonePct:23.14 };
-const TLAB = ["lower","middle","higher"];
-
-const INDICES = {
-  carer: { tab:"Carer load", title:"Carer rate by region", type:"uni", field:"carerRate", unit:"%", dec:2,
-    lgTitle:"Carer rate", lgSub:"carers per 100 people · Census 2022",
-    blurb:"The base measure: share of people who are unpaid carers." },
-  iso: { tab:"Carers × isolation", title:"Carers × transport isolation", type:"bi", y:"carerRate", x:"noCarPct",
-    yl:"Carer rate", xl:"No-car households", dec:1,
-    blurb:"Carer load crossed with no-car households. Dark corner = high on both — many carers where households lack a car.",
-    foot:"No-car % is an area measure, not carers specifically." },
-  lone: { tab:"Carers × lone homes", title:"Carers × lone households", type:"bi", y:"carerRate", x:"lonePct",
-    yl:"Carer rate", xl:"One-person homes", dec:1,
-    blurb:"Carer load crossed with one-person households — a lone care-recipient / demand signal, not carer isolation.",
-    foot:"One-person % is a demand signal, not carer isolation." },
+// distance-to-support rank is a stored field: prd (per SA) / prdMean (per region), national percentile rank 0–100.
+function distRankSA(p){ return p.prd==null?null:p.prd; }
+function distRankR(d){ return d.prdMean==null?null:d.prdMean; }
+const BIVS = {
+  opp:  { label:"Opportunity (Need × Supply)", group:"Opportunity — where to target",
+          sub:"Need × distance to the nearest carer support — the dark corner is where to target.",
+          gloss:"High vulnerability AND far from support — separates remote-but-served from served-but-needy.",
+          xR:distRankR, xSA:distRankSA, xterc:"dist", yl:"Vulnerability", xl:"distance to support" },
+  binc: { label:"Need × no-car homes", group:"Advanced",
+          sub:"Vulnerability × no-car households — both high = isolated need (a demoted legacy lens).",
+          gloss:"Legacy bivariate, re-keyed onto the vulnerability axis (no-car = the Isolation theme).",
+          xR:d=>d.noCarPct, xSA:p=>p.is, xterc:"nocar", yl:"Vulnerability", xl:"no-car homes" },
 };
-let IDX = "carer";
+function isBiv(k){ return k in BIVS; }
+function lens(k){ return MEASURES[k] || BIVS[k]; }
+function terClass(v,t){ return v==null?-1 : v<t[0]?0 : v<t[1]?1 : 2; }
+function spreadBar(p05,p95,mean){
+  const c=v=>Math.max(0,Math.min(100,v));
+  return `<div class="spread"><div class="sp-track"><div class="sp-range" style="left:${c(p05)}%;width:${Math.max(1,c(p95)-c(p05))}%"></div><div class="sp-mean" style="left:${c(mean)}%"></div></div>`
+    +`<div class="sp-lab"><span>${Math.round(p05)}</span><span>avg ${Math.round(mean)}</span><span>${Math.round(p95)}</span></div></div>`;
+}
+function hotspotBadge(top,total,cta){
+  if(!top) return "";
+  const tail = cta===undefined ? " Drill in to see where." : (cta?` ${cta}`:"");
+  return `<div class="hotspot"><span aria-hidden="true">⚠</span><span><b>${top}${total?` of ${total.toLocaleString("en-IE")}`:""} small areas</b> here are in Ireland's most-vulnerable 10% — the average hides them.${tail}</span></div>`;
+}
 
 // ---- classification --------------------------------------------------------
 function quantiles(vals, qs){
   const s=[...vals].sort((a,b)=>a-b);
   return qs.map(q=>{ const i=q*(s.length-1), lo=Math.floor(i), hi=Math.ceil(i); return s[lo]+(s[hi]-s[lo])*(i-lo); });
 }
-let STATS = {};   // per-index breaks, computed once data loads
-function computeStats(){
-  const carer = ROWS.map(d=>d.carerRate);
-  STATS.carer = { breaks: quantiles(carer, [1,2,3,4,5].map(i=>i/6)),
-                  min: Math.min(...carer), max: Math.max(...carer) };
-  ["iso","lone"].forEach(k=>{
-    const ix = INDICES[k];
-    STATS[k] = { ty: quantiles(ROWS.map(d=>d[ix.y]), [1/3,2/3]),
-                 tx: quantiles(ROWS.map(d=>d[ix.x]), [1/3,2/3]) };
-  });
-}
 function uniClass(v, breaks){ if(v==null) return -1; let c=0; for(const b of breaks){ if(v>=b) c++; } return c; }
-function terClass(v, t){ return v<t[0] ? 0 : v<t[1] ? 1 : 2; }
 
-function colourFor(d){
-  const ix = INDICES[IDX];
-  if(ix.type==="uni"){ const c=uniClass(d? d[ix.field]:null, STATS.carer.breaks); return c<0? NO_DATA : VIRIDIS[c]; }
+// region-OWN breaks: quantiles of the 8 region means per measure (fixes the washed-out national view —
+// region means bunch ~42–58 while small-area values span 2–98, so the small-area breaks can't be reused).
+let RBREAKS = {}, RTERC = {};
+function computeRegionBreaks(){
+  MEAS_KEYS.forEach(k=>{
+    const vals = ROWS.map(d=>d[MEAN_KEY[k]]).filter(v=>v!=null);
+    RBREAKS[k] = { breaks: quantiles(vals,[1,2,3,4,5].map(i=>i/6)),
+                   min: Math.min(...vals), max: Math.max(...vals) };
+  });
+  // region-level terciles for the bivariate lenses
+  RTERC.v     = quantiles(ROWS.map(d=>d.vMean),[1/3,2/3]);
+  RTERC.dist  = quantiles(ROWS.map(distRankR),[1/3,2/3]);
+  RTERC.nocar = quantiles(ROWS.map(d=>d.noCarPct),[1/3,2/3]);
+}
+function saTerc(field){ const b=SA_META.breaks[field]; return [b[1],b[3]]; } // 2/6 & 4/6 national quantiles ≈ terciles
+function bivColourRegion(d){
+  const L=BIVS[MEAS], y=d.vMean, x=L.xR(d);
+  if(y==null||x==null) return NO_DATA;
+  return BIV[terClass(y,RTERC.v)][terClass(x, L.xterc==="dist"?RTERC.dist:RTERC.nocar)];
+}
+function bivColourSA(p){
+  const L=BIVS[MEAS], y=p.v, x=L.xSA(p);
+  if(y==null||x==null) return NO_DATA;
+  const xt = L.xterc==="dist" ? SA_META.terciles.prd : saTerc('is');
+  return BIV[terClass(y,SA_META.terciles.v)][terClass(x,xt)];
+}
+function regionColour(d){
   if(!d) return NO_DATA;
-  return BIV[ terClass(d[ix.y], STATS[IDX].ty) ][ terClass(d[ix.x], STATS[IDX].tx) ];
+  if(isBiv(MEAS)) return bivColourRegion(d);
+  const c = uniClass(d[MEAN_KEY[MEAS]], RBREAKS[MEAS].breaks);
+  return c<0 ? NO_DATA : VIRIDIS[c];
+}
+function regionRank(name){
+  const arr=[...ROWS].sort((a,b)=>b[MEAN_KEY[MEAS]]-a[MEAN_KEY[MEAS]]);
+  return arr.findIndex(d=>d.region===name)+1;
 }
 
 // ================= tab routing =================
-const views = { home: document.getElementById("home"), map: document.getElementById("map-view") };
-const tabs  = { home: document.getElementById("tab-home"), map: document.getElementById("tab-map") };
+const views = { home: document.getElementById("home"), map: document.getElementById("map-view"), gap: document.getElementById("gap-view") };
+const tabs  = { home: document.getElementById("tab-home"), map: document.getElementById("tab-map"), gap: document.getElementById("tab-gap") };
 let mapReady = false;
 function setHash(s){ if(location.hash.slice(1)!==s) history.replaceState(null,"","#"+s); }
-function mapHash(){ let s="map"; if(IDX!=="carer") s+="."+IDX; if(selected) s+="="+encodeURIComponent(selected); return s; }
+function mapHash(){ let s="map"; if(MEAS!=="v") s+="."+MEAS; if(selected) s+="="+encodeURIComponent(selected); return s; }
 function parseHash(){
   let h=decodeURIComponent(location.hash.slice(1)), region=null, index=null;
   const eq=h.indexOf("="); if(eq>=0){ region=h.slice(eq+1); h=h.slice(0,eq); }
@@ -363,13 +607,14 @@ function show(name){
   if(!views[name]) name="home";
   for(const k in views){ const on=k===name; views[k].classList.toggle("active",on); views[k].setAttribute("aria-hidden",String(!on)); tabs[k].setAttribute("aria-selected",String(on)); }
   if(name==="map") ensureMap();
+  if(name==="gap") ensureGapMap();
   setHash(name==="map" ? mapHash() : name);
 }
 function route(){
   const {view,index,region}=parseHash();
-  if(index && INDICES[index]) IDX=index;
+  if(index && lens(index)) MEAS=index;
   show(view||"home");
-  if(view==="map") dataReady.then(()=>{ setIndex(IDX); if(region) selectRegion(region,false); });
+  if(view==="map") dataReady.then(()=>{ setMeasure(MEAS); if(region) selectRegion(region,false); });
 }
 document.querySelectorAll("[data-view]").forEach(el=> el.addEventListener("click", ()=>show(el.dataset.view)));
 window.addEventListener("hashchange", route);
@@ -383,87 +628,128 @@ const dataReady = Promise.all([
 ]).then(([rows,geo,sameta])=>{
   ROWS = rows.slice().sort((a,b)=>a.rankNow-b.rankNow);
   rows.forEach(d=> BY[d.region]=d);
-  GEO = geo; SA_META=sameta; computeStats();
-  buildHome(); buildSubtabs(); buildLegend(); buildResults("");
+  GEO = geo; SA_META=sameta; computeRegionBreaks();
+  buildHome(); reflectMeasure(); buildLegend(); buildResults("");
 });
 
 // ================= home =================
 function buildHome(){
   const bars=document.getElementById("heroBars");
-  bars.innerHTML = ROWS.map((d,i)=>{ const t=Math.max(.12,(d.carerRate-4.9)/(6.6-4.9));
-    return `<i title="${d.region} ${d.carerRate.toFixed(2)}%" style="height:${(t*100).toFixed(0)}%;background:${VIRIDIS[uniClass(d.carerRate,STATS.carer.breaks)]};animation-delay:${(i*0.06+0.3).toFixed(2)}s"></i>`; }).join("");
+  const lo=RBREAKS.v.min, hi=RBREAKS.v.max;
+  bars.innerHTML = ROWS.map((d,i)=>{ const t=Math.max(.16,(d.vMean-lo)/((hi-lo)||1));
+    return `<i title="${d.region} — vulnerability ${Math.round(d.vMean)}" style="height:${(t*100).toFixed(0)}%;background:${VIRIDIS[uniClass(d.vMean,RBREAKS.v.breaks)]};animation-delay:${(i*0.06+0.3).toFixed(2)}s"></i>`; }).join("");
   const carers=ROWS.reduce((s,d)=>s+d.carers2022,0);
-  const stats=[ {n:carers.toLocaleString("en-IE"),l:"unpaid carers, Census 2022"},
-    {n:"8",l:"regions · 3 at-risk indices"}, {n:`${NATIONAL.carerRate}<span class="u">%</span>`,l:"national carer rate"},
-    {n:`${BY["West"].carerRate.toFixed(1)}<span class="u">%</span>`,l:"highest — the West"} ];
+  const top=[...ROWS].sort((a,b)=>b.vMean-a.vMean)[0];
+  const stats=[ {n:carers.toLocaleString("en-IE"),l:"unpaid carers · Census 2022"},
+    {n:"18,919",l:"Census small areas mapped"},
+    {n:`${NATIONAL_CARER}<span class="u">%</span>`,l:"national carer rate"},
+    {n:top.region,l:"highest regional vulnerability"} ];
   document.getElementById("homeStats").innerHTML = stats.map((s,i)=>`<div class="stat" style="animation-delay:${(i*0.07+0.4).toFixed(2)}s"><div class="n tnum">${s.n}</div><div class="l">${s.l}</div></div>`).join("");
 }
 
-// ================= index sub-tabs =================
-function buildSubtabs(){
-  const bar=document.getElementById("subtabs"); bar.innerHTML="";
-  Object.entries(INDICES).forEach(([k,ix])=>{
-    const b=document.createElement("button");
-    b.className="subtab"; b.setAttribute("role","tab"); b.setAttribute("aria-selected", String(k===IDX));
-    const dot = ix.type==="uni" ? VIRIDIS[4] : BIV[2][2];
-    b.innerHTML=`<span class="dot" style="background:${dot}"></span>${ix.tab}`;
-    b.onclick=()=>setIndex(k);
-    bar.appendChild(b);
-  });
-  const blurb=document.createElement("span"); blurb.className="idx-blurb"; blurb.id="idxBlurb";
-  blurb.textContent=INDICES[IDX].blurb; bar.appendChild(blurb);
+// ================= measure selector =================
+const mselBtn=document.getElementById("mselBtn"), mselPop=document.getElementById("mselPop");
+function optHTML(k){
+  const m=lens(k), on=k===MEAS, dotc = isBiv(k)?BIV[2][2]:(k==="v"?VIRIDIS[5]:VIRIDIS[4]);
+  return `<div class="msel-opt${on?' on':''}" data-k="${k}" role="option" tabindex="0" aria-selected="${on}">
+    <span class="msel-odot" style="background:${dotc}"></span>
+    <span class="msel-otxt"><b>${m.label}</b><span>${m.gloss}</span></span>
+    ${on?'<span class="msel-tick">✓</span>':''}</div>`;
 }
-function setIndex(k){
-  IDX=k;
-  document.querySelectorAll(".subtab").forEach((b,i)=>b.setAttribute("aria-selected", String(Object.keys(INDICES)[i]===k)));
-  document.getElementById("idxBlurb").textContent=INDICES[k].blurb;
-  document.getElementById("idxTitle").textContent=INDICES[k].title;
-  buildLegend();
+function buildMeasureSelector(){
+  let html = `<div class="msel-grp">Headline</div>${optHTML("v")}`
+    + `<div class="msel-grp">Opportunity — where to target</div>${optHTML("opp")}`
+    + `<div class="msel-grp">What drives it</div>` + ["cl","st","dm","is","sd"].map(optHTML).join("")
+    + `<div class="msel-grp">Advanced</div>${optHTML("binc")}`;
+  mselPop.innerHTML=html;
+  mselPop.querySelectorAll(".msel-opt").forEach(o=>{
+    const pick=()=>{ setMeasure(o.dataset.k); closeMsel(); mselBtn.focus(); };
+    o.addEventListener("click",pick);
+    o.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); pick(); } });
+  });
+}
+function reflectMeasure(){
+  const m=lens(MEAS);
+  document.getElementById("idxTitle").textContent=m.label;
+  document.getElementById("idxSub").textContent=m.sub;
+  document.getElementById("mselCur").textContent=m.label;
+  document.getElementById("mselDot").style.background= isBiv(MEAS)?BIV[2][2] : (MEAS==="v"?VIRIDIS[5]:VIRIDIS[4]);
+  buildMeasureSelector();
+}
+function openMsel(){ mselPop.classList.add("open"); mselBtn.setAttribute("aria-expanded","true"); }
+function closeMsel(){ mselPop.classList.remove("open"); mselBtn.setAttribute("aria-expanded","false"); }
+mselBtn.addEventListener("click",e=>{ e.stopPropagation(); mselPop.classList.contains("open")?closeMsel():openMsel(); });
+mselBtn.addEventListener("keydown",e=>{ if(e.key==="Escape") closeMsel(); });
+document.addEventListener("click",e=>{ if(!document.getElementById("msel").contains(e.target)) closeMsel(); });
+
+function setMeasure(k){
+  if(!lens(k)) return;
+  MEAS=k;
+  reflectMeasure();
   if(layer) layer.setStyle(styleFor);
-  if(saMode&&saLayer){saLayer.setStyle(saStyleFn);buildSALegend(SA_FIELDS[k]||'r');}
+  if(saMode && saLayer){ saLayer.setStyle(saStyleFn); buildSALegend(); if(selected) document.getElementById("idxTitle").textContent=`${selected} — small areas`; }
+  else buildLegend();
   buildResults(search.value);
   if(selected) openDetail(selected);
+  syncDesert();
   setHash(mapHash());
 }
 
 // ================= legend =================
+function buildBivLegend(level){
+  const L=BIVS[MEAS];
+  let cells="";
+  for(let y=2;y>=0;y--) for(let x=0;x<3;x++) cells+=`<i style="background:${BIV[y][x]}"></i>`;
+  document.getElementById("legendBox").innerHTML=
+    `<h4>${L.label}</h4><div class="sub">darker = high on both · terciles · ${level==="region"?"region averages":"each area's own values"}</div>
+     <div class="biv">
+       <div class="yl"><span class="arrow">▲</span> ${L.yl}</div>
+       <div class="grid">${cells}</div>
+       <div class="xl">${L.xl} <span class="arrow">▶</span></div>
+     </div>
+     <div class="biv-corner">Top-right (darkest) = high ${L.yl.toLowerCase()} &amp; high ${L.xl} = target here.</div>
+     <div class="note-region">${level==="sa"?"Terciles are <b>relative to Ireland</b> — by construction ~1 in 9 areas fall in the dark corner.":"Cells are <b>region averages</b> split into thirds across the 8 regions — click a region to see each area's own cell."}</div>
+     <div class="foot">Stevens bivariate choropleth. Area-level, not individuals.</div>`;
+}
 function buildLegend(){
-  const ix=INDICES[IDX], box=document.getElementById("legendBox");
-  if(ix.type==="uni"){
-    const b=STATS.carer.breaks, lo=STATS.carer.min, hi=STATS.carer.max, edges=[lo,...b,hi];
-    let rows="";
-    for(let i=VIRIDIS.length-1;i>=0;i--){
-      rows+=`<div class="lrow"><span class="sw" style="background:${VIRIDIS[i]}"></span><span class="rng">${edges[i].toFixed(2)}–${edges[i+1].toFixed(2)}%</span></div>`;
-    }
-    box.innerHTML=`<h4>${ix.lgTitle}</h4><div class="sub">${ix.lgSub}</div>${rows}
-      <div class="foot">Quantile classes across the 8 regions. Area-level rates, not individuals.</div>`;
-  } else {
-    let cells="";
-    for(let y=2;y>=0;y--) for(let x=0;x<3;x++) cells+=`<i style="background:${BIV[y][x]}"></i>`;
-    box.innerHTML=`<h4>${ix.title}</h4><div class="sub">darker = high on both · terciles</div>
-      <div class="biv">
-        <div class="yl"><span class="arrow">▲</span> ${ix.yl}</div>
-        <div class="grid">${cells}</div>
-        <div class="xl">${ix.xl} <span class="arrow">▶</span></div>
-      </div>
-      <div class="biv-corner">Top-right = high carer load &amp; high ${ix.xl.toLowerCase()}.</div>
-      <div class="foot">${ix.foot}</div>`;
-  }
+  if(isBiv(MEAS)) return buildBivLegend("region");
+  const st=RBREAKS[MEAS], m=MEASURES[MEAS], box=document.getElementById("legendBox");
+  const edges=[st.min,...st.breaks,st.max];
+  let rows="";
+  for(let i=VIRIDIS.length-1;i>=0;i--)
+    rows+=`<div class="lrow"><span class="sw" style="background:${VIRIDIS[i]}"></span><span class="rng">${Math.round(edges[i])}–${Math.round(edges[i+1])}</span></div>`;
+  box.innerHTML=`<h4>${m.label} — region average</h4>
+    <div class="sub">Score 0–100 · averaged across each region's small areas</div>${rows}
+    <div class="note-region">Region colour = the <b>average</b> of its small areas, which hides local spread.
+      Click a region to see each area's own score.</div>
+    <div class="foot">Quantile classes across the 8 regions. Data: CSO Census 2022, Pobal HP 2022. Area-level, not individuals.</div>`;
+}
+function buildSALegend(){
+  if(isBiv(MEAS)) return buildBivLegend("sa");
+  const field=MEAS, breaks=SA_META.breaks[field],edges=[0,...breaks,100];
+  let rows='';
+  for(let i=VIRIDIS.length-1;i>=0;i--)
+    rows+=`<div class="lrow"><span class="sw" style="background:${VIRIDIS[i]}"></span><span class="rng">${edges[i].toFixed(0)}–${edges[i+1].toFixed(0)}</span></div>`;
+  const label=(SA_META.measures&&SA_META.measures[field])||field;
+  document.getElementById('legendBox').innerHTML=
+    `<h4>${label} — small areas</h4><div class="sub">Score 0–100 · each area's own value</div>${rows}
+     <div class="note-region area">You're seeing each small area's <b>own</b> score now — not the regional average.</div>
+     <div class="foot">Percentile rank across 18,919 small areas (100 = greatest need). Area-level, not individuals.</div>`;
 }
 
 // ================= searchbar =================
 const search=document.getElementById("search"), results=document.getElementById("results"), clr=document.getElementById("clr");
 let activeIdx=-1, flatOpts=[];
 function buildResults(q){
-  q=(q||"").trim().toLowerCase(); const ix=INDICES[IDX];
+  q=(q||"").trim().toLowerCase();
   const groups={};
   ROWS.forEach(d=>{ if(q && !(d.region.toLowerCase().includes(q)||d.province.toLowerCase().includes(q))) return; (groups[d.province]||=[]).push(d); });
   flatOpts=[]; let html="";
   ["Northern and Western","Southern","Eastern and Midland"].forEach(prov=>{
     const ds=groups[prov]; if(!ds) return; html+=`<div class="grp">${prov}</div>`;
     ds.forEach(d=>{ const i=flatOpts.length; flatOpts.push(d.region);
-      const val = ix.type==="uni" ? d.carerRate.toFixed(2)+"%" : `${d.carerRate.toFixed(2)}% · ${d[ix.x].toFixed(1)}%`;
-      html+=`<div class="opt" role="option" data-region="${d.region}" data-idx="${i}"><span class="sw" style="background:${colourFor(d)}"></span><span class="nm">${d.region}</span><span class="rt tnum">${val}</span></div>`; });
+      const val = isBiv(MEAS) ? Math.round(d.vMean) : Math.round(d[MEAN_KEY[MEAS]]);
+      html+=`<div class="opt" role="option" data-region="${d.region}" data-idx="${i}"><span class="sw" style="background:${regionColour(d)}"></span><span class="nm">${d.region}</span><span class="rt tnum">${val}</span></div>`; });
   });
   results.innerHTML = html || `<div class="grp" style="text-transform:none;letter-spacing:0">No region matches “${q}”.</div>`;
   results.querySelectorAll(".opt").forEach(o=>{ o.addEventListener("mousedown",e=>{e.preventDefault();selectRegion(o.dataset.region,true);}); o.addEventListener("mouseenter",()=>setActive(+o.dataset.idx)); });
@@ -483,27 +769,32 @@ search.addEventListener("keydown",e=>{
 clr.addEventListener("click",()=>{ search.value=""; clr.style.display="none"; buildResults(""); search.focus(); });
 document.addEventListener("click",e=>{ if(!document.getElementById("combo").contains(e.target)) closeResults(); });
 
-// ================= SA zoom =================
+// ================= small-area drill-down =================
 let SA_META=null, saLayer=null, saCache={}, saMode=false;
 const saCanvas=L.canvas({padding:.5});
-const saSlug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-const SA_FIELDS={carer:'r',iso:'n',lone:'o'};
-const SA_LABEL={r:'Carer rate',n:'No-car households',o:'One-person households'};
+const NTLAB={ homecare:"home care", fci:"Family Carers centre", nursing:"nursing home" };
 function saColour(v,field){
   if(v==null) return NO_DATA;
   const breaks=SA_META.breaks[field]; let i=0;
   while(i<breaks.length&&v>breaks[i])i++; return VIRIDIS[i];
 }
 function saStyleFn(f){
-  const field=SA_FIELDS[IDX]||'r';
-  return{fillColor:saColour(f.properties[field],field),fillOpacity:.85,color:'#fff',weight:.25};
+  const c = isBiv(MEAS) ? bivColourSA(f.properties) : saColour(f.properties[MEAS],MEAS);
+  return{fillColor:c,fillOpacity:.85,color:'#fff',weight:.25};
 }
 function saTipFor(p){
-  const fmt=v=>v==null?'—':v.toFixed(1)+'%';
-  return `<b>Carer rate:</b> ${fmt(p.r)}<br>No-car: ${fmt(p.n)} · Lone hh: ${fmt(p.o)}`;
+  const fmt=v=>v==null?'—':v.toFixed(1)+'%', sc=v=>v==null?'—':Math.round(v);
+  let s=`<b>Vulnerability ${sc(p.v)}</b>`
+      +`<br>Care load ${sc(p.cl)} · Strain ${sc(p.st)} · Demand ${sc(p.dm)} · Isolation ${sc(p.is)}`;
+  if(p.sd!=null) s+=`<br>Service desert <b>${sc(p.sd)}</b>`;
+  if(p.dn!=null) s+=` · ${p.dn} km to nearest ${NTLAB[p.nt]||p.nt}`+(p.nl&&p.nl!=="address"?` <span style="opacity:.7">(~${p.nl})</span>`:"");
+  if(p.nsup!=null) s+=`<br><span style="opacity:.8">${p.nsup} carer-support service${p.nsup===1?"":"s"} within ${(SA_META&&SA_META.density_km)||25} km</span>`;
+  s+=`<br><span style="opacity:.8">carer ${fmt(p.cr)} · 65+ ${fmt(p.a65)} · disability ${fmt(p.dr)}</span>`;
+  return s;
 }
 async function loadSA(name){
   if(!SA_META||!SA_META.regions[name]) return;
+  selected=name; document.getElementById("reset").disabled=false;
   const info=SA_META.regions[name];
   document.getElementById('loadingSA').classList.add('on');
   try{
@@ -517,7 +808,7 @@ async function loadSA(name){
     saMode=true;
     if(layer)layer.setStyle(f=>({...styleFor(f),fillOpacity:.1,weight:.5,color:'#bbb'}));
     document.getElementById('idxTitle').textContent=`${name} — small areas`;
-    buildSALegend(SA_FIELDS[IDX]||'r');
+    buildSALegend(); updateBreadcrumb();
     const zb=document.getElementById('zoomBtn');
     if(zb){zb.textContent='← Back to region view';zb.onclick=()=>exitSA();}
   }finally{document.getElementById('loadingSA').classList.remove('on');}
@@ -527,29 +818,37 @@ function exitSA(){
   if(saLayer){map.removeLayer(saLayer);saLayer=null;}
   saMode=false;
   if(layer)layer.setStyle(styleFor);
-  buildLegend();
-  document.getElementById('idxTitle').textContent=INDICES[IDX].title;
+  buildLegend(); updateBreadcrumb();
+  document.getElementById('idxTitle').textContent=lens(MEAS).label;
   const zb=document.getElementById('zoomBtn');
   if(zb&&selected){zb.textContent='↓ Drill into small areas';zb.onclick=()=>loadSA(selected);}
 }
-function buildSALegend(field){
-  const breaks=SA_META.breaks[field],edges=[0,...breaks,100];
-  let rows='';
-  for(let i=VIRIDIS.length-1;i>=0;i--)
-    rows+=`<div class="lrow"><span class="sw" style="background:${VIRIDIS[i]}"></span><span class="rng">${edges[i].toFixed(1)}–${edges[i+1].toFixed(1)}%</span></div>`;
-  document.getElementById('legendBox').innerHTML=
-    `<h4>${SA_LABEL[field]}</h4><div class="sub">Small areas · Census 2022</div>${rows}
-     <div class="foot">Quantile classes across 18,919 small areas. Area-level rates.</div>`;
+
+// ================= zoom breadcrumb (distinct from the lens control) =================
+function updateBreadcrumb(){
+  const c=document.getElementById("crumbs"); if(!c) return;
+  const steps=[{k:"nat",label:"Ireland",sub:"8 regions"}];
+  if(selected) steps.push({k:"reg",label:selected});
+  if(saMode) steps.push({k:"sa",label:"small areas"});
+  c.innerHTML=steps.map((s,i)=>{
+    const last=i===steps.length-1;
+    const inner=`${s.label}${s.sub&&!last?` <span class="cz">${s.sub}</span>`:""}`;
+    return (i?`<span class="csep">›</span>`:"") + (last?`<span class="crumb cur" aria-current="true">${inner}</span>`:`<button class="crumb" data-z="${s.k}">${inner}</button>`);
+  }).join("");
+  const nat=c.querySelector('[data-z="nat"]'); if(nat) nat.onclick=()=>fitAll();
+  const reg=c.querySelector('[data-z="reg"]'); if(reg) reg.onclick=()=>{ if(saMode) exitSA(); };
 }
 
 // ================= map =================
-let map, layer, selected=null;
+let map, layer, selected=null, supplyRenderer, desertRenderer;
 function ensureMap(){
   if(mapReady){ map.invalidateSize(); return; }
   mapReady=true;
   dataReady.then(()=>{
-    map=L.map("map",{ zoomControl:false, attributionControl:false, zoomSnap:.25, scrollWheelZoom:true, minZoom:5.5, maxZoom:11 });
+    map=L.map("map",{ zoomControl:false, attributionControl:false, zoomSnap:.25, scrollWheelZoom:true, minZoom:5.5, maxZoom:13 });
     L.control.zoom({position:"bottomright"}).addTo(map);
+    const sp=map.createPane("supply"); sp.style.zIndex=650; supplyRenderer=L.canvas({pane:"supply",padding:.5});
+    const dp=map.createPane("desert"); dp.style.zIndex=660; desertRenderer=L.canvas({pane:"desert",padding:.5});
     layer=L.geoJSON(GEO,{
       style: styleFor,
       onEachFeature:(f,l)=>{
@@ -561,23 +860,26 @@ function ensureMap(){
     }).addTo(map);
     map.fitBounds(layer.getBounds(),{padding:[30,30]});
     map.setMaxBounds(layer.getBounds().pad(0.6));
+    syncDesert(); updateBreadcrumb();
     setTimeout(()=>document.getElementById("map").classList.add("ready"),500);
   });
 }
 function styleFor(f){
   const d=BY[f.properties.region], sel=selected===f.properties.region;
-  return { fillColor: colourFor(d), fillOpacity: selected&&!sel?0.45:0.9, color: sel?"#181a2b":"#ffffff", weight: sel?2.6:1 };
+  return { fillColor: regionColour(d), fillOpacity: selected&&!sel?0.45:0.9, color: sel?"#181a2b":"#ffffff", weight: sel?2.6:1 };
 }
 function tooltipFor(name){
-  const d=BY[name], ix=INDICES[IDX];
-  if(ix.type==="uni") return `<b>${name}</b> · ${d.carerRate.toFixed(2)}%`;
-  return `<b>${name}</b> · carer ${d.carerRate.toFixed(2)}% · ${ix.xl.toLowerCase()} ${d[ix.x].toFixed(1)}%`;
+  const d=BY[name];
+  const spread = d.vP05!=null ? `<br><span style="opacity:.8">need spans ${Math.round(d.vP05)}→${Math.round(d.vP95)} inside · ${d.vTop10} top-decile pockets</span>`:"";
+  if(isBiv(MEAS)){ const L=BIVS[MEAS];
+    return `<b>${name}</b> · ${L.yl} ${Math.round(d.vMean)} · ${L.xl} ${Math.round(L.xR(d))}${spread}<br><span style="opacity:.7">click to drill in</span>`; }
+  return `<b>${name}</b> · ${lens(MEAS).label} ${Math.round(d[MEAN_KEY[MEAS]])} (region avg)${spread}<br><span style="opacity:.7">click to drill in</span>`;
 }
 function layerOf(name){ let hit=null; layer&&layer.eachLayer(l=>{ if(l.feature.properties.region===name) hit=l; }); return hit; }
 function fitAll(animate=true){
   exitSA();
   selected=null; if(layer){ layer.setStyle(styleFor); map.fitBounds(layer.getBounds(),{padding:[30,30],animate}); }
-  closeDetail(); document.getElementById("reset").disabled=true; search.value=""; clr.style.display="none"; setHash(mapHash());
+  closeDetail(); document.getElementById("reset").disabled=true; search.value=""; clr.style.display="none"; updateBreadcrumb(); setHash(mapHash());
 }
 function selectRegion(name,fromSearch){
   if(!BY[name]) return; show("map");
@@ -585,7 +887,7 @@ function selectRegion(name,fromSearch){
     selected=name; layer.setStyle(styleFor);
     const l=layerOf(name); if(l) map.fitBounds(l.getBounds(),{padding:[55,55],maxZoom:9.5,animate:true});
     openDetail(name); document.getElementById("reset").disabled=false;
-    search.value=name; clr.style.display="block"; closeResults(); setHash(mapHash());
+    search.value=name; clr.style.display="block"; closeResults(); updateBreadcrumb(); setHash(mapHash());
   };
   if(layer) apply(); else dataReady.then(()=>{ ensureMap(); setTimeout(apply,60); });
 }
@@ -593,41 +895,263 @@ function selectRegion(name,fromSearch){
 // ================= detail panel =================
 const detail=document.getElementById("detail");
 function openDetail(name){
-  const d=BY[name], ix=INDICES[IDX];
+  const d=BY[name];
   let html=`<div class="prov">${d.province}</div><h3>${name}</h3>`;
-  if(ix.type==="uni"){
-    const delta=d.carerRate-NATIONAL.carerRate, t=Math.max(0,Math.min(1,(d.carerRate-5.0)/1.5)), tn=(NATIONAL.carerRate-5.0)/1.5;
-    const rt=d.rankNow===1?"highest of 8":d.rankNow===8?"lowest of 8":`#${d.rankNow} of 8`;
-    html+=`<span class="chip"><span class="sw" style="background:${colourFor(d)}"></span>Rank ${d.rankNow} — ${rt}</span>
-      <div class="big">${d.carerRate.toFixed(2)}<span class="u">%</span></div>
-      <div class="big-l">of people here are unpaid carers</div>
-      <div class="gauge" style="background:linear-gradient(90deg,var(--v0),var(--v2),var(--v5))"><span class="nat" style="left:${(tn*100).toFixed(1)}%"></span><span class="pin" style="left:${(t*100).toFixed(1)}%"></span></div>
-      <div class="gauge-ends"><span>5.0%</span><span>nat ${NATIONAL.carerRate}%</span><span>6.5%</span></div>
-      <div class="drow"><span class="k">Unpaid carers</span><span class="v tnum">${d.carers2022.toLocaleString("en-IE")}</span></div>
-      <div class="drow"><span class="k">Population</span><span class="v tnum">${d.population2022.toLocaleString("en-IE")}</span></div>
-      <div class="drow"><span class="k">vs national</span><span class="v tnum ${delta>=0?"delta-pos":"delta-neg"}">${delta>=0?"+":""}${delta.toFixed(2)} pts</span></div>`;
+  if(isBiv(MEAS)){
+    const L=BIVS[MEAS], x=L.xR(d);
+    const yc=terClass(d.vMean,RTERC.v), xc=terClass(x, L.xterc==="dist"?RTERC.dist:RTERC.nocar);
+    const both=yc===2&&xc===2;
+    html+=`<span class="chip"><span class="sw" style="background:${regionColour(d)}"></span>${TLAB[yc]} ${L.yl.toLowerCase()} · ${TLAB[xc]} ${L.xl}</span>`
+      + (both?`<div style="margin-top:12px;font-size:13px;font-weight:700;color:#3b4994">▲ High on both — a target hotspot</div>`:"")
+      + `<div class="big-l" style="margin-top:13px">${L.sub} Click a region to see each area's own cell.</div>`;
   } else {
-    const yc=terClass(d[ix.y],STATS[IDX].ty), xc=terClass(d[ix.x],STATS[IDX].tx);
-    const both = yc===2&&xc===2;
-    html+=`<span class="chip"><span class="sw" style="background:${colourFor(d)}"></span>${TLAB[yc]} carer load · ${TLAB[xc]} ${ix.xl.toLowerCase()}</span>
-      ${both?`<div style="margin-top:11px;font-size:12.5px;font-weight:700;color:#3b4994">▲ High on both — an at-risk hotspot</div>`:""}
-      <div class="drow" style="border-top:0;margin-top:16px;padding-top:0"><span class="k">Carer rate</span><span class="v tnum">${d.carerRate.toFixed(2)}%</span></div>
-      <div class="drow"><span class="k">${ix.xl}</span><span class="v tnum">${d[ix.x].toFixed(1)}%</span></div>
-      <div class="drow"><span class="k">Unpaid carers</span><span class="v tnum">${d.carers2022.toLocaleString("en-IE")}</span></div>
-      <div class="drow"><span class="k">Population</span><span class="v tnum">${d.population2022.toLocaleString("en-IE")}</span></div>`;
+    const score=Math.round(d[MEAN_KEY[MEAS]]);
+    const rank=regionRank(name), rt=rank===1?"highest of 8":rank===8?"lowest of 8":`#${rank} of 8`;
+    html+=`<span class="chip"><span class="sw" style="background:${regionColour(d)}"></span>${MEASURES[MEAS].label} · ${rt}</span>
+      <div class="big">${score}<span class="u">/100</span></div>
+      <div class="big-l">${MEASURES[MEAS].label} — average across this region</div>
+      <div class="gauge" style="background:linear-gradient(90deg,var(--v0),var(--v2),var(--v5))"><span class="pin" style="left:${score}%"></span></div>
+      <div class="gauge-ends"><span>0 · lower need</span><span>100 · greater need</span></div>`;
   }
+  if(d.vP05!=null){
+    const tot = (SA_META && SA_META.regions[name]) ? SA_META.regions[name].count : null;
+    html+=`<div class="mbreak-h">Spread of vulnerability inside this region</div>${spreadBar(d.vP05,d.vP95,d.vMean)}${hotspotBadge(d.vTop10,tot)}`;
+  }
+  html+=`<div class="mbreak-h">What makes it up — region averages</div>
+    <div class="mbreak">`;
+  MEAS_KEYS.forEach(k=>{ const s=Math.round(d[MEAN_KEY[k]]); const c=VIRIDIS[Math.max(0,uniClass(d[MEAN_KEY[k]],RBREAKS[k].breaks))];
+    html+=`<div class="mb-row${k===MEAS?' on':''}"><span class="mb-l">${MEASURES[k].label}</span><span class="mb-bar"><i style="width:${s}%;background:${c}"></i></span><span class="mb-v">${s}</span></div>`; });
+  html+=`</div>
+    <div class="drow"><span class="k">Unpaid carers</span><span class="v tnum">${d.carers2022.toLocaleString("en-IE")}</span></div>
+    <div class="drow"><span class="k">Population</span><span class="v tnum">${d.population2022.toLocaleString("en-IE")}</span></div>`;
   if(SA_META){
     const btnLabel=saMode?'← Back to region view':'↓ Drill into small areas';
     html+=`<button class="zoom-btn" id="zoomBtn">${btnLabel}</button>`;
   }
+  html+=`<button class="gap-link" id="gapLink">How well is this served? See the operator Market Gap →</button>`;
   document.getElementById("detailBody").innerHTML=html;
   const zb=document.getElementById('zoomBtn');
   if(zb) zb.addEventListener('click',()=>{ saMode?exitSA():loadSA(name); });
+  const gl=document.getElementById('gapLink');
+  if(gl) gl.addEventListener('click',()=>show('gap'));
   detail.classList.add("open");
 }
 function closeDetail(){ detail.classList.remove("open"); }
 document.getElementById("detailX").addEventListener("click",()=>{ closeDetail(); fitAll(); });
 document.getElementById("reset").addEventListener("click",()=>fitAll());
+
+// ================= supply overlays (three keyless point layers) =================
+const SUPPLY = {
+  homecare: { file:"supply/homecare_agencies.geojson", color:"#2563b0", r:3.4, op:.95 },
+  fci:      { file:"supply/fci_centres.geojson",       color:"#d6206e", r:5.5, op:.95 },
+  nursing:  { file:"supply/nursing_homes.geojson",     color:"#e8743b", r:3.4, op:.55 },
+};
+function supplyTip(p){
+  let s=`<b>${p.name}</b>`;
+  if(p.beds)   s+=` · ${p.beds} beds`;
+  if(p.serves) s+=`<br>Serves: ${p.serves}`;
+  if(p.addr)   s+=`<br>${p.addr}`;
+  const line=[p.phone,p.website].filter(Boolean).join(" · ");
+  if(line)     s+=`<br><span style="opacity:.8">${line}</span>`;
+  if(p.loc && p.loc!=="address") s+=`<br><span style="opacity:.6">approx — geocoded to ${p.loc}</span>`;
+  return s;
+}
+async function toggleSupply(key,on){
+  const cfg=SUPPLY[key]; if(!map) return;
+  if(on){
+    if(!cfg.layer){
+      const fc=await(await fetch(cfg.file)).json();
+      cfg.layer=L.geoJSON(fc,{ pane:"supply", renderer:supplyRenderer,
+        pointToLayer:(f,ll)=>L.circleMarker(ll,{ pane:"supply", radius:cfg.r, fillColor:cfg.color, color:"#fff", weight:1, fillOpacity:cfg.op }),
+        onEachFeature:(f,l)=>l.bindTooltip(()=>supplyTip(f.properties),{className:"tip",sticky:true,opacity:1}) });
+      const el=document.getElementById("c-"+key); if(el) el.textContent=fc.features.length;
+    }
+    cfg.layer.addTo(map);
+  } else if(cfg.layer){ map.removeLayer(cfg.layer); }
+}
+document.querySelectorAll("#supplyCard input[data-layer]").forEach(cb=>{
+  cb.onchange=()=>toggleSupply(cb.dataset.layer, cb.checked);
+});
+
+// ================= service-desert panel (Service-desert measure only) =================
+let TOP=null, topLayer=null;
+async function ensureTop(){ if(TOP) return TOP; TOP=await(await fetch("sa/top_desert.json")).json(); return TOP; }
+function buildDesertTable(){
+  const rows=TOP.slice(0,12).map((r,i)=>{
+    const ap=r.nl&&r.nl!=="address"?` <span class="ap">~${r.nl}</span>`:"";
+    return `<tr class="r" data-region="${r.region}" data-lat="${r.lat}" data-lon="${r.lon}">`
+      +`<td>${i+1}</td><td>SA ${(""+r.c).split("/")[0]}<br><span class="ap">${r.region}</span></td>`
+      +`<td class="di">${r.dn} km<br><span class="ap">${NTLAB[r.nt]||r.nt}${ap}</span></td>`
+      +`<td class="sc">${Math.round(r.sd)}</td></tr>`;
+  }).join("");
+  document.getElementById("desertTable").innerHTML=
+    `<tr><th>#</th><th>Small area</th><th>Nearest support</th><th>Score</th></tr>${rows}`;
+  document.querySelectorAll("#desertTable tr.r").forEach(tr=>{
+    tr.onclick=async ()=>{ const rg=tr.dataset.region; selected=rg; if(layer) layer.setStyle(styleFor);
+      document.getElementById("reset").disabled=false; await loadSA(rg);
+      map.setView([+tr.dataset.lat,+tr.dataset.lon],11); openDetail(rg); };
+  });
+}
+function toggleTop(on){
+  if(!map) return;
+  if(on){
+    if(!topLayer){
+      topLayer=L.layerGroup(TOP.map(r=>
+        L.circleMarker([r.lat,r.lon],{ pane:"desert", renderer:desertRenderer, radius:5, fillColor:"#440154", color:"#fff", weight:1.4, fillOpacity:.92 })
+          .bindTooltip(`SA ${(""+r.c).split("/")[0]} · desert ${Math.round(r.sd)} · ${r.dn} km to ${NTLAB[r.nt]||r.nt}`,{className:"tip",direction:"top",opacity:1})
+          .on("click",()=>{ loadSA(r.region).then(()=>map.setView([r.lat,r.lon],11)); })));
+    }
+    topLayer.addTo(map);
+  } else if(topLayer){ map.removeLayer(topLayer); }
+}
+async function syncDesert(){
+  const panel=document.getElementById("desert" + "Card"), on=MEAS==="sd";
+  panel.classList.toggle("on",on);
+  if(on){ await ensureTop(); if(!document.getElementById("desertTable").children.length) buildDesertTable(); }
+  else { const tt=document.getElementById("topToggle"); if(tt) tt.checked=false; toggleTop(false); }
+}
+document.getElementById("topToggle").onchange=e=>{ ensureTop().then(()=>toggleTop(e.target.checked)); };
+
+// ================= Market Gap (IHA) view =================
+let gapMap, gapLayer, gapData=null, gapMeta=null, gapReady=false, gapSel=null;
+let TARGET=[], TARGET_BY={}, townLayer=null, gapTownRenderer;
+const gapDataReady = Promise.all([
+  fetch("iha/iha_market_gap.geojson").then(r=>r.json()),
+  fetch("iha/_meta.json").then(r=>r.json()),
+  fetch("iha/target_drilldown.json").then(r=>r.json()).catch(()=>[]),
+]).then(([geo,meta,tgt])=>{ gapData=geo; gapMeta=meta; TARGET=tgt||[]; TARGET.forEach(t=>TARGET_BY[t.iha_code]=t); });
+const shortIHA = s => s.replace(/^HSE /,"").replace(/ IHA$/,"");
+
+function gapColour(v){ const b=gapMeta.breaks; let i=0; while(i<b.length && v>b[i]) i++; return VIRIDIS[i]; }
+function gapStyle(f){ const sel=gapSel===f.properties.code;
+  return { fillColor:gapColour(f.properties.gap), fillOpacity: gapSel&&!sel?0.45:0.88,
+           color: sel?"#181a2b":"#fff", weight: sel?2.6:1 }; }
+function gapTip(p){
+  const spread = p.vP05!=null ? `<br><span style="opacity:.8">need spans ${Math.round(p.vP05)}→${Math.round(p.vP95)} · ${p.vTop10} of ${p.nSA} top-decile</span>`:"";
+  return `<b>${shortIHA(p.name)}</b> · gap ${p.gap}<br>${p.providers} providers · mean need ${Math.round(p.vuln)}${spread}`;
+}
+
+function ensureGapMap(){
+  if(gapReady){ gapMap.invalidateSize(); return; }
+  gapReady=true;
+  gapDataReady.then(()=>{
+    gapMap=L.map("gapMap",{ zoomControl:false, attributionControl:false, zoomSnap:.25,
+      scrollWheelZoom:true, minZoom:5.5, maxZoom:11 });
+    L.control.zoom({position:"bottomright"}).addTo(gapMap);
+    const tp=gapMap.createPane("twn"); tp.style.zIndex=655; gapTownRenderer=L.canvas({pane:"twn",padding:.5});
+    gapLayer=L.geoJSON(gapData,{ style:gapStyle, onEachFeature:(f,l)=>{
+      l.bindTooltip(()=>gapTip(f.properties),{className:"tip",sticky:true,direction:"top",opacity:1});
+      l.on("click",()=>selectIHA(f.properties.code));
+      l.on("mouseover",()=>{ if(gapSel!==f.properties.code) l.setStyle({weight:2,color:"#181a2b"}); });
+      l.on("mouseout",()=>gapLayer.resetStyle(l));
+    }}).addTo(gapMap);
+    gapMap.fitBounds(gapLayer.getBounds(),{padding:[30,30]});
+    gapMap.setMaxBounds(gapLayer.getBounds().pad(0.6));
+    buildGapLegend(); buildGapList();
+    setTimeout(()=>document.getElementById("gapMap").classList.add("ready"),400);
+  });
+}
+function buildGapLegend(){
+  const b=gapMeta.breaks, hi=Math.max(...gapData.features.map(f=>f.properties.gap)), edges=[0,...b,hi];
+  let rows="";
+  for(let i=b.length;i>=0;i--)
+    rows+=`<div class="lrow"><span class="sw" style="background:${VIRIDIS[i]}"></span><span class="rng">${edges[i].toFixed(2)}–${edges[i+1].toFixed(2)}</span></div>`;
+  document.getElementById("gapLegendBox").innerHTML=
+    `<h4>Market Gap score</h4><div class="sub">need rank − supply rank · 20 HSE areas</div>${rows}
+     <div class="note-region">Lead with the <b>rank</b>, not the raw score: it's a difference of two percentile
+       ranks (need minus supply), so the order is stable even where the magnitude isn't.</div>
+     <div class="foot">PR(vulnerability) − PR(providers per 1,000 aged 65+); range −100 to +100. Quantile classes across 20 IHAs.</div>`;
+}
+function buildGapList(){
+  const feats=[...gapData.features].sort((a,b)=>a.properties.rank-b.properties.rank);
+  document.getElementById("gapList").innerHTML=feats.map(f=>{ const p=f.properties;
+    return `<div class="gap-row" data-code="${p.code}"><span class="rk">${p.rank}</span>`+
+      `<span class="sw" style="background:${gapColour(p.gap)}"></span>`+
+      `<span class="nm">${shortIHA(p.name)}</span><span class="sc">${p.gap}</span></div>`; }).join("");
+  document.querySelectorAll("#gapList .gap-row").forEach(r=> r.onclick=()=>selectIHA(r.dataset.code));
+}
+function selectIHA(code){
+  gapSel=code; gapLayer.setStyle(gapStyle);
+  let hit=null; gapLayer.eachLayer(l=>{ if(l.feature.properties.code===code) hit=l; });
+  if(hit) gapMap.fitBounds(hit.getBounds(),{padding:[60,60],maxZoom:9.5,animate:true});
+  document.querySelectorAll("#gapList .gap-row").forEach(r=>r.classList.toggle("active",r.dataset.code===code));
+  const row=document.querySelector(`#gapList .gap-row[data-code="${code}"]`); if(row) row.scrollIntoView({block:"nearest"});
+  showTarget(code);
+}
+
+// ---- capstone: "Target your supply here" — IHA → its worst service-desert towns ----
+function clearTownPins(){ if(townLayer){ gapMap.removeLayer(townLayer); townLayer=null; } }
+function drawTownPins(code){
+  clearTownPins();
+  const t=TARGET_BY[code]; if(!t) return;
+  townLayer=L.layerGroup(t.towns.map(tn=>
+    L.circleMarker([tn.lat,tn.lon],{ pane:"twn", renderer:gapTownRenderer, radius:6, fillColor:"#440154", color:"#fff", weight:1.6, fillOpacity:.92 })
+      .bindTooltip(`<b>${tn.town||('SA '+tn.sa)}</b> · desert ${Math.round(tn.desert)}<br>${tn.d_nearest_km} km to nearest ${NTLAB[tn.nearest_type]||tn.nearest_type}${tn.nearest_loc!=="address"?` <span style="opacity:.7">(~${tn.nearest_loc})</span>`:""}`,{className:"tip",direction:"top",opacity:1})
+      .on("click",()=>gapMap.setView([tn.lat,tn.lon],11)))).addTo(gapMap);
+}
+function exitTarget(){
+  const panel=document.querySelector(".gap-panel"); panel.classList.remove("mode-detail");
+  clearTownPins(); gapSel=null; if(gapLayer) gapLayer.setStyle(gapStyle);
+  document.querySelectorAll("#gapList .gap-row").forEach(r=>r.classList.remove("active"));
+}
+function showTarget(code){
+  const panel=document.querySelector(".gap-panel"), t=TARGET_BY[code];
+  drawTownPins(code);
+  if(!t){ panel.classList.remove("mode-detail"); return; }
+  const gf=gapData.features.find(f=>f.properties.code===code), gp=gf?gf.properties:{};
+  const gap=t.market_gap_score;
+  const tier = gap>=15 ? "Target your supply here" : gap>0 ? "Unmet need — worth a look" : "Well-supplied — lower priority";
+  const thLabel = gap>0 ? "Worst service-desert towns to target" : "Highest-need towns here";
+  const pb=loc=> loc==="address" ? "" : `<span class="pbadge ${loc}">~${loc}</span>`;
+  const rows=t.towns.map((tn,i)=>
+    `<tr class="r" data-i="${i}"><td class="t"><b>${tn.town||('SA '+tn.sa)}</b>${pb(tn.nearest_loc)}`
+    +`<div class="km">${tn.d_nearest_km} km to nearest ${NTLAB[tn.nearest_type]||tn.nearest_type} · SA ${tn.sa}</div></td>`
+    +`<td class="sc">${Math.round(tn.desert)}</td></tr>`).join("");
+  document.getElementById("gapDetail").innerHTML=
+    `<button class="gap-back" id="gapToList">← All 20 areas</button>
+     <div class="ans-head">
+       <div class="ans-rank">Rank #${t.rank} of 20 by market gap</div>
+       <h3>${tier}<b>${shortIHA(t.iha_name)}</b></h3>
+       <div class="ans-stats">
+         <span class="ans-stat"><b>${t.market_gap_score}</b>market&nbsp;gap</span>
+         <span class="ans-stat"><b>${Math.round(t.mean_vulnerability)}</b>mean&nbsp;need</span>
+         <span class="ans-stat"><b>${t.provider_count}</b>providers</span>
+         <span class="ans-stat"><b>${t.providers_per_1k_65plus.toFixed(2)}</b>per&nbsp;1k&nbsp;65+</span>
+       </div>
+       ${gp.vP05!=null?`<div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);margin-top:13px">Need varies widely inside</div>${spreadBar(gp.vP05,gp.vP95,t.mean_vulnerability)}${hotspotBadge(gp.vTop10,gp.nSA,"The worst are listed below.")}`:""}
+       <div class="ans-cap"><b>Office ≠ where care is delivered.</b> Distance is a proxy for access, not a service boundary — a shortlist to validate on the ground, not a verdict. Precision flag (~town / ~county) shown where the nearest office isn't street-located.</div>
+     </div>
+     <div class="ans-th">${thLabel}</div>
+     <div class="twrap"><table class="twn"><tr><th>Town · distance to nearest support</th><th class="r">Desert</th></tr>${rows}</table></div>
+     <div class="gap-foot"><button class="btn-sm" id="gapTownCsv">
+       <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+       Download this area's target list (CSV)</button></div>`;
+  panel.classList.add("mode-detail");
+  document.getElementById("gapToList").onclick=exitTarget;
+  document.querySelectorAll("#gapDetail table.twn tr.r").forEach(tr=> tr.onclick=()=>{ const tn=t.towns[+tr.dataset.i]; gapMap.setView([tn.lat,tn.lon],11); });
+  document.getElementById("gapTownCsv").onclick=()=>exportTownCSV(t);
+}
+function exportTownCSV(t){
+  const cols=["iha_rank","iha_code","iha_name","sa_code","nearest_town","desert_score","vulnerability","km_to_nearest_support","nearest_type","geocode_precision","lat","lon"];
+  const lines=[cols.join(",")];
+  t.towns.forEach(tn=> lines.push([t.rank,t.iha_code,`"${t.iha_name}"`,tn.sa,`"${tn.town||''}"`,tn.desert,tn.vulnerability,tn.d_nearest_km,tn.nearest_type,tn.nearest_loc,tn.lat,tn.lon].join(",")));
+  const blob=new Blob([lines.join("\n")],{type:"text/csv"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download=`target_${shortIHA(t.iha_name).replace(/[^a-z0-9]+/gi,'_').toLowerCase()}.csv`; a.click(); URL.revokeObjectURL(a.href);
+}
+function exportGapCSV(){
+  const cols=["rank","iha_code","iha_name","health_region","market_gap_score",
+    "mean_vulnerability","provider_count","providers_per_1k_65plus","pop_65plus"];
+  const feats=[...gapData.features].sort((a,b)=>a.properties.rank-b.properties.rank);
+  const lines=[cols.join(",")];
+  feats.forEach(f=>{ const p=f.properties;
+    lines.push([p.rank,p.code,`"${p.name}"`,`"${p.hr}"`,p.gap,p.vuln,p.providers,p.dens,p.pop65].join(",")); });
+  const blob=new Blob([lines.join("\n")],{type:"text/csv"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="iha_market_gap.csv"; a.click(); URL.revokeObjectURL(a.href);
+}
+document.getElementById("gapCsv").addEventListener("click",exportGapCSV);
+document.getElementById("gapBack").addEventListener("click",()=>show("map"));
 
 // ================= boot =================
 route();

@@ -28,7 +28,7 @@
 
 So the dimensions are *time and geography*, not two indicators combined. That is what sets it apart from the-indices-of-ireland (weighted indices with sliders, but frozen in time): here the novel axis is **time**.
 
-**How the 2042 view is produced** ("age the current map forward"): take each region's 2022 older population, apply `PEC26`'s projected growth factor for that region and scenario, and colour by the change. Still one measure on a choropleth, just a different measure than Now. Full method in [MODELLING.md](MODELLING.md).
+**How the 2042 view is produced** ("age the current map forward"): take each region's 2022 older population, apply `PEC26`'s projected growth factor for that region and scenario, and colour by the change. Still one measure on a choropleth, just a different measure than Now. Full method in [MODELLING.md](../_archive/MODELLING.md).
 
 **What the 2042 view is and isn't:** it shows where *demand* grows (more older people needing care), not where *carers themselves* are most stretched. Carer rate alone is not truly "at-risk," and the national rate is nearly flat (5.2–6.3% across the 8 regions), so a deeper "at-risk" reading needs a second variable:
 
@@ -42,7 +42,7 @@ So the dimensions are *time and geography*, not two indicators combined. That is
 
 A weighted composite "at-risk score" (sliders, indices-of-ireland style) is possible but imports a weight-choosing problem, so it stays optional.
 
-**In short:** spine = one measure over time (Now = carer rate, 2042 = projected demand; national → regional; scenarios M1–M3), plus an optional bivariate at-risk lens at small-area. See [BUILD_BRIEF.md](../BUILD_BRIEF.md), [MODELLING.md](MODELLING.md), [EXTENSIONS.md](EXTENSIONS.md).
+**In short:** spine = one measure over time (Now = carer rate, 2042 = projected demand; national → regional; scenarios M1–M3), plus an optional bivariate at-risk lens at small-area. See [BUILD_BRIEF.md](../BUILD_BRIEF.md), [MODELLING.md](../_archive/MODELLING.md), [EXTENSIONS.md](EXTENSIONS.md).
 
 ## What "at-risk" means here
 
@@ -59,8 +59,8 @@ Full inventory in [DATA.md](DATA.md). In short — all keyless via CSO PxStat: c
 ## Build layers
 
 1. **Now** — current carer need (carer rate by NUTS3, zoomable). ← *building*
-2. **Future** — projected demand from ageing (Regional Projections 2023–2042, NUTS3). Method in [MODELLING.md](MODELLING.md).
-3. **What-if** — adjustable inputs to test outcomes (the M1/M2/M3 scenario toggle; see [MODELLING.md](MODELLING.md)).
+2. **Future** — projected demand from ageing (Regional Projections 2023–2042, NUTS3). Method in [MODELLING.md](../_archive/MODELLING.md).
+3. **What-if** — adjustable inputs to test outcomes (the M1/M2/M3 scenario toggle; see [MODELLING.md](../_archive/MODELLING.md)).
 
 ---
 
