@@ -1,3 +1,6 @@
 {
-  "outputDirectory": "site"
+  "outputDirectory": "site",
+  "routes": [
+    { "src": "/", "dest": "/login.html" }
+  ]
 }
