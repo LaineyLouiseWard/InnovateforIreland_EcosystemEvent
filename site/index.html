@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carer At-Risk Map — Ireland</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{
+    --ink:#1d2433; --ink-soft:#566077; --line:#d7dce6;
+    --paper:#f7f8fb; --card:#ffffff; --sea:#eef2f7;
+    --accent:#6e016b;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{ font-family:var(--sans); color:var(--ink); background:var(--paper); overflow:hidden; }
+  #map{ position:absolute; inset:0; background:var(--sea); z-index:0; }
+  .leaflet-container{ background:var(--sea); font-family:var(--sans); }
+  .leaflet-interactive{ cursor:pointer; }
+
+  /* reveal + hover */
+  @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+  .leaflet-overlay-pane path{ animation:fadeIn .55s ease both; }
+  #map.ready .leaflet-overlay-pane path{ transition:fill-opacity .2s ease, stroke-width .12s ease; }
+  .leaflet-overlay-pane path:hover{ stroke:#1d2433; stroke-width:2.2; fill-opacity:1; }
+
+  .panel{
+    position:absolute; z-index:500; background:var(--card);
+    border:1px solid var(--line); border-radius:10px;
+    box-shadow:0 6px 22px rgba(29,36,51,.12);
+  }
+  /* title (top-left) */
+  #title{ top:16px; left:16px; max-width:330px; padding:15px 17px; }
+  #title .kicker{ font-size:11px; font-weight:700; letter-spacing:.13em; text-transform:uppercase; color:var(--accent); }
+  #title h1{ font-size:21px; line-height:1.18; margin:5px 0 6px; font-weight:700; }
+  #title p{ font-size:13px; line-height:1.45; color:var(--ink-soft); margin:0; }
+  #title .caption{ margin-top:9px; padding-top:9px; border-top:1px solid var(--line);
+    font-size:11.5px; letter-spacing:.02em; color:var(--ink-soft); }
+
+  /* legend (bottom-left) */
+  #legend{ bottom:16px; left:16px; width:236px; padding:13px 15px 14px; }
+  #legend .lg-title{ font-size:12.5px; font-weight:700; margin-bottom:2px; }
+  #legend .lg-sub{ font-size:11px; color:var(--ink-soft); margin-bottom:9px; }
+  #ramp{ display:flex; height:13px; border-radius:3px; overflow:hidden; border:1px solid var(--line); }
+  #ramp span{ flex:1; }
+  #ramp-ends{ display:flex; justify-content:space-between; font-size:11px; color:var(--ink-soft);
+    font-variant-numeric:tabular-nums; margin-top:4px; }
+  #ramp-breaks{ font-size:10px; color:var(--ink-soft); font-variant-numeric:tabular-nums;
+    margin-top:3px; letter-spacing:.01em; }
+  #legend .note{ margin-top:11px; padding-top:10px; border-top:1px solid var(--line);
+    font-size:10.5px; line-height:1.4; color:var(--ink-soft); font-style:italic; }
+
+  /* attribution (bottom-right) */
+  #attrib{ bottom:16px; right:16px; max-width:300px; padding:9px 12px;
+    font-size:10.5px; line-height:1.5; color:var(--ink-soft); }
+  #attrib a{ color:var(--ink-soft); }
+
+  /* popup */
+  .leaflet-popup-content-wrapper{ border-radius:10px; box-shadow:0 8px 26px rgba(29,36,51,.2); }
+  .leaflet-popup-content{ font-family:var(--sans); margin:13px 15px; font-size:13px; }
+  .pop-name{ font-size:17px; font-weight:700; line-height:1.1; }
+  .pop-rank{ font-size:11.5px; color:var(--ink-soft); margin-top:2px; }
+  .pop-rate{ font-size:24px; font-weight:700; color:var(--accent); margin:9px 0 1px;
+    font-variant-numeric:tabular-nums; }
+  .pop-rate-label{ font-size:11px; color:var(--ink-soft); }
+  .pop-row{ display:flex; justify-content:space-between; gap:18px; margin-top:7px;
+    padding-top:7px; border-top:1px solid var(--line); font-size:12.5px; }
+  .pop-row .k{ color:var(--ink-soft); }
+  .pop-row .v{ font-variant-numeric:tabular-nums; font-weight:600; }
+
+  @media (max-width:560px){
+    #title{ max-width:none; left:10px; right:10px; top:10px; }
+    #legend{ left:10px; bottom:10px; width:210px; }
+    #attrib{ display:none; }
+  }
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<div id="title" class="panel">
+  <div class="kicker">Now · Census 2022</div>
+  <h1>Carer At-Risk Map of Ireland</h1>
+  <p>Where unpaid carers are most concentrated across the eight regions, before support
+     is allocated off national totals that hide where strain sits.</p>
+  <div class="caption">Carer rate — carers per 100 people. Click a region for detail.</div>
+</div>
+
+<div id="legend" class="panel">
+  <div class="lg-title">Carer rate</div>
+  <div class="lg-sub">carers per 100 people · Census 2022</div>
+  <div id="ramp"></div>
+  <div id="ramp-ends"><span>5.0%</span><span>6.5%</span></div>
+  <div id="ramp-breaks"></div>
+  <div class="note">Area-level rates, not individuals — open census data shows where carers
+    concentrate, not who they are. Fixed class breaks, so regions stay comparable and the
+    map doesn't rescale; near-identical regions share a shade.</div>
+</div>
+
+<div id="attrib" class="panel">
+  Data: CSO Census 2022 (SAP2022T12T2NUTS ÷ SAP2022T1T1NUTS) — CC BY 4.0.
+  Boundaries: Tailte Éireann / GeoHive.
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ---- colour scale: sequential BuPu, 6 fixed classes ------------------------
+// The spread is tiny (5.2–6.3% across all 8), so a continuous ramp on [5,6.5] looks
+// flat. We use fixed class breaks instead — a sequential *classed* scale. The breaks
+// are pinned (they don't rescale per region or view), so colour stays comparable and
+// the map is honest: genuinely near-tied regions share a class, the highest stands alone.
+const BREAKS = [5.0, 5.4, 5.8, 6.0, 6.15, 6.3, 6.5];   // 7 edges → 6 classes
+const STOPS  = ["#bfd3e6","#9ebcda","#8c96c6","#8c6bb1","#88419d","#6e016b"];
+const NO_DATA = "#d7dce6";   // grey: only shows if a join fails — deliberately obvious
+
+function classOf(rate){
+  if(rate == null) return -1;
+  for(let i=BREAKS.length-2; i>=0; i--){ if(rate >= BREAKS[i]) return i; }
+  return -1;   // below the scale's lowest break → no-data grey, not a silent class 0
+}
+function colourFor(rate){
+  const c = classOf(rate);
+  return c < 0 ? NO_DATA : STOPS[c];
+}
+document.getElementById("ramp").innerHTML =
+  STOPS.map(c=>`<span style="background:${c}"></span>`).join("");
+document.getElementById("ramp-breaks").textContent =
+  "class breaks: " + BREAKS.slice(1,-1).map(b=>b+"%").join(" · ");
+
+// ---- map (no tile layer: fully static, no external map requests) ------------
+const map = L.map("map", {
+  zoomControl:true, attributionControl:false, zoomSnap:0.25,
+  scrollWheelZoom:false, doubleClickZoom:false,
+});
+L.control.zoom({ position:"topright" }).addTo(map);
+
+// ---- load the two baked files, join by region, draw -------------------------
+Promise.all([
+  fetch("regions.json").then(r=>r.json()),
+  fetch("regions.geojson").then(r=>r.json()),
+]).then(([rows, geo])=>{
+  const BY = {};
+  rows.forEach(d=>{ BY[d.region] = d; });
+  const TOTAL = rows.length;   // 8
+
+  // join check — log any polygon whose region name has no data row
+  const unmatched = [];
+  geo.features.forEach(f=>{ if(!BY[f.properties.region]) unmatched.push(f.properties.region); });
+  if(unmatched.length){
+    console.warn("JOIN FAILED for region(s):", unmatched, "— shown grey on the map.");
+  } else {
+    console.log(`Join OK — all ${geo.features.length} polygons matched a data row.`);
+  }
+
+  const layer = L.geoJSON(geo, {
+    style: f => {
+      const d = BY[f.properties.region];
+      return {
+        fillColor: colourFor(d ? d.carerRate : null),
+        fillOpacity: 0.88, color:"#ffffff", weight:1,
+      };
+    },
+    onEachFeature: (f, lyr)=>{
+      const d = BY[f.properties.region];
+      lyr.bindPopup(popupHTML(f.properties.region, d, TOTAL), { autoPan:false, maxWidth:260 });
+      lyr.on("mouseover", ()=>lyr.setStyle({ weight:2.2, color:"#1d2433" }));
+      lyr.on("mouseout",  ()=>lyr.setStyle({ weight:1,   color:"#ffffff" }));
+    },
+  }).addTo(map);
+
+  fitToStage(layer);
+  window.addEventListener("resize", ()=>fitToStage(layer));
+  setTimeout(()=>document.getElementById("map").classList.add("ready"), 650);
+}).catch(err=>{
+  console.error("Failed to load baked data:", err);
+});
+
+function popupHTML(region, d, total){
+  if(!d){
+    return `<div class="pop-name">${region}</div>`
+         + `<div class="pop-rank">no carer data joined to this region</div>`;
+  }
+  return `<div class="pop-name">${region}</div>`
+       + `<div class="pop-rank">Rank ${d.rankNow} of ${total} by carer rate`
+       + `${d.rankNow===1 ? " — highest" : d.rankNow===total ? " — lowest" : ""}</div>`
+       + `<div class="pop-rate">${d.carerRate.toFixed(2)}%</div>`
+       + `<div class="pop-rate-label">of the population are unpaid carers</div>`
+       + `<div class="pop-row"><span class="k">Unpaid carers</span>`
+       + `<span class="v">${d.carers2022.toLocaleString()}</span></div>`
+       + `<div class="pop-row"><span class="k">Population</span>`
+       + `<span class="v">${d.population2022.toLocaleString()}</span></div>`;
+}
+
+// Fit Ireland into the map, leaving room for the title/legend cards on the left.
+function fitToStage(layer){
+  map.invalidateSize();
+  const b = layer.getBounds();
+  const narrow = window.innerWidth < 560;
+  const padL = narrow ? 20 : Math.min(360, window.innerWidth * 0.30);
+  map.fitBounds(b, { paddingTopLeft:[padL, 40], paddingBottomRight:[40, 40] });
+}
+</script>
+</body>
+</html>
