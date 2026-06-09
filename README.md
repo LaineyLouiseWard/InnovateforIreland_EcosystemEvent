@@ -40,8 +40,8 @@ A **Geography toggle** sets how the country is divided:
 
 - **Regional:** the 8 NUTS3 regions, for the national overview.
 - **Local:** click a region to drop into its Census small areas (18,919 nationwide).
-- **HSE areas:** the 20 HSE Integrated Healthcare Areas, the operator view. Click one for a
-  "Target your supply here" card listing its worst small areas, with a CSV export.
+- **HSE areas:** the 20 HSE Integrated Healthcare Areas, the operator view. Click one to zoom in
+  and open a "Target your supply here" card listing its worst small areas, with a CSV export.
 
 A separate **Showing lens** sets what the colour means: the **Vulnerability** headline (a
 0-100 percentile-rank composite of carer load, deprivation, age and disability demand, and
