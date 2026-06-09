@@ -2,8 +2,8 @@
 
 Synthesis of three design drafts (operator tool · need×supply bivariate · unified flow).
 They are not rivals — they're the **answer**, the **headline map**, and the **skeleton** of
-one product. This doc is the agreed concept; the *data* tasks below belong to the methods
-chat, the *visual build* to the visuals chat (`docs/VISUALS_BRIEF.md`).
+one product. This is the concept that shipped: a single-page app with the three levels and
+lenses described below.
 
 ---
 
@@ -17,7 +17,7 @@ same map read two ways; the capstone is where they converge on a decision.
 
 ### (A) Skeleton — one zoom spine, lens ⟂ zoom
 - **Land on:** National, coloured by Vulnerability, supply dots off.
-- **Drill:** region → IHA → small area, with a persistent breadcrumb (`Ireland › West › Donegal IHA › SA 067…`) and one "zoom out" control. This replaces the current split between `index.html` and `zoom.html`.
+- **Drill:** region → IHA → small area, with a persistent breadcrumb (`Ireland › West › Donegal IHA › SA 067…`) and one "zoom out" control. The site ships as one page, not a separate overview and zoom page.
 - **Lens** (a single control, never changes zoom): `Vulnerability` (default) · the 5 breakdowns (Care load / Strain / Demand / Isolation / **Service desert**) · `Market Gap` (IHA level only) · supply-dot overlays · legacy bivariates (collapsed "advanced").
 - **IHA becomes a real middle rung**, not an orphan tab — that's where Market Gap lives.
 

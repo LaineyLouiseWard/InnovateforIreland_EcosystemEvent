@@ -26,8 +26,8 @@ All CSO data is **keyless and open** via the PxStat API (JSON-stat/CSV). Census 
 ## Context amplifiers — area-level, raise the risk
 
 - **Deprivation** — Pobal HP Deprivation Index (small area, standardised score). External to CSO but keyless. Proxy for "can't afford private respite."
-- **Ageing / future demand** — population 65+ now (SAP2022 age tables: NUTS3 / county / small area) **and** [Regional Population Projections 2023–2042](https://www.cso.ie/en/releasesandpublications/ep/p-rpp/regionalpopulationprojections2023-2042/) for *where demand grows*: `PEC26` (projected population, single-year age × NUTS3 × year 2022–2042 × scenario M1/M2/M3 — derive 65+/85+) and `PEC28` (projected old-age dependency ratio × NUTS3). See [DOWNLOAD_MANIFEST.md](../_archive/DOWNLOAD_MANIFEST.md).
-- **Isolation / access** — distance to the 22 Family Carers Ireland centres; low car availability (census SAPS).
+- **Ageing / future demand** — population 65+ now (SAP2022 age tables: NUTS3 / county / small area) **and** [Regional Population Projections 2023–2042](https://www.cso.ie/en/releasesandpublications/ep/p-rpp/regionalpopulationprojections2023-2042/) for *where demand grows*: `PEC26` (projected population, single-year age × NUTS3 × year 2022–2042 × scenario M1/M2/M3 — derive 65+/85+) and `PEC28` (projected old-age dependency ratio × NUTS3).
+- **Isolation / access** — distance to the 16 Family Carers Ireland centres; low car availability (census SAPS).
 
 ## Geographies available for carers (2022)
 

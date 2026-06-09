@@ -2,7 +2,7 @@
 
 The carer need-vs-supply map, end to end, and the established method each step rests on.
 This is the single reference for *what we did and why it's defensible*. Data provenance is
-in `SOURCES.md`; the product/UX concept is in `docs/CAPSTONE_CONCEPT.md`.
+in `SOURCES.md`; the product/UX concept is in `../design/CAPSTONE_CONCEPT.md`.
 
 **Scope:** Republic of Ireland only (CSO Census 2022, Pobal, Tailte Éireann, HIQA, HSE).
 **Geography:** 18,919 Census Small Areas (SA) sit inside 20 HSE Integrated Healthcare Areas
@@ -27,16 +27,16 @@ themes are averaged into one score.
 Grounded in the CDC/ATSDR Social Vulnerability Index (the percentile-rank-and-sum method)
 and the OECD *Handbook on Constructing Composite Indicators*. Percentile ranking avoids
 inventing weights and makes unlike variables (a %, a deprivation score, a rate) comparable.
-We dropped the 43+hrs-caring variable because it does not exist at SA level in the census
-(documented in `_archive/VARIABLE_VERIFICATION_REPORT.md`), rather than fabricate it.
+We dropped the 43+hrs-caring variable because it does not exist at SA level in the census,
+rather than fabricate it.
 
 ## 2. Supply: three service-point layers
 
 Geocoded point locations of where carer and older-person support physically exists: nursing
 homes (HIQA register, 543), home-care agencies (20 HSE approved-provider lists, 206 distinct
 offices), and Family Carers Ireland centres (16). Addresses were geocoded with OSM Nominatim
-(keyless). Eircodes are not openly geocodable, so precision is street- or town-level, and the
-precision flag travels with every point (see Limitations).
+(keyless). Eircodes are not openly geocodable, so precision is street- or town-level, and a `loc`
+precision flag (`address`/`town`/`county`) travels with every point (see Limitations).
 
 ## 3. Service Desert: fusing demand and supply (per Small Area)
 

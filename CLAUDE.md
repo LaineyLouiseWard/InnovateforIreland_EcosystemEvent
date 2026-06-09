@@ -1,6 +1,6 @@
 # Working conventions — AI Build Day repo
 
-Read [`README.md`](README.md) and [`WORKSHOP_EMAIL.md`](WORKSHOP_EMAIL.md) for the problem and brief. This file is committed — the shared source of truth for anyone (and any Claude Code session) building here.
+Read [`README.md`](README.md) for the problem and brief. This file is committed — the shared source of truth for anyone (and any Claude Code session) building here.
 
 It's a fast, half-day, several-people-at-once build, so the hygiene below matters. CLAUDE.md sets *how we work*, not *what we build* — the idea is worked out on the day, so don't lock in data or design choices it doesn't already state.
 

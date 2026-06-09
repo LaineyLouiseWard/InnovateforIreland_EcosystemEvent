@@ -1,8 +1,8 @@
 # Limitations
 
 A plain-language list of what this map can and cannot tell you. Written to be read aloud to a
-non-specialist audience, and to keep us honest. Nothing here is a flaw to hide: these are the
-known edges of a keyless, open-data prototype, and most have a clear upgrade path.
+non-specialist audience. These are the known edges of a keyless, open-data prototype, and most
+have a clear upgrade path.
 
 Rule of thumb: everything here is an area-level signal to investigate, never a verdict about a
 place or a person.

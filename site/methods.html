@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Methods & sources · Carer Map Ireland</title>
+<meta name="description" content="How the Carer Vulnerability Map is built: the four-theme score, the targeting measures, the HSE market-gap view, data sources and the caveats we keep off the map itself.">
+<link rel="icon" href="logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{ color-scheme:light;
+    --v0:#fde725; --v1:#7ad151; --v2:#22a884; --v3:#2a788e; --v4:#414487; --v5:#440154;
+    --no-data:#dfe1ea;
+    --ink:#181a2b; --muted:#646a80; --faint:#6f7589;
+    --line:#e8e9f1; --line-soft:#f0f1f6;
+    --bg:#ffffff; --bg-soft:#f7f7fb; --sea:#eef1f6; --paper:#fbfaf6;
+    --accent:#46327e; --accent-deep:#2f2057; --teal:#1f8a86;
+    --shadow:0 1px 2px rgba(24,26,43,.04), 0 8px 28px rgba(24,26,43,.08);
+    --shadow-lg:0 12px 50px rgba(24,26,43,.16);
+    --r:14px; --r-sm:10px;
+    --font:"Google Sans Flex","Google Sans","Lexend",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --display:"Fraunces",Georgia,"Times New Roman",serif;
+    --nav-h:62px;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; }
+  body{ font-family:var(--font); color:var(--ink); background:var(--paper);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  a{ color:var(--accent); text-decoration:none; }
+  h1,h2,h3{ margin:0; font-weight:700; letter-spacing:-.02em; line-height:1.1; }
+  .tnum{ font-variant-numeric:tabular-nums; }
+
+  /* ---------------- NAV (mirrors index.html) ---------------- */
+  nav{ position:sticky; top:0; z-index:1000; height:var(--nav-h); display:flex; align-items:center; gap:8px;
+    padding:0 clamp(16px,4vw,40px); background:rgba(255,255,255,.95); backdrop-filter:saturate(1.4) blur(10px);
+    border-bottom:1px solid var(--line); box-shadow:0 1px 8px rgba(24,26,43,.06); }
+  .brand{ display:flex; align-items:center; gap:10px; margin-right:auto; }
+  .brand-logo{ height:30px; width:auto; display:block; }
+  .brand-divider{ width:1px; height:20px; background:var(--line); }
+  .brand-text{ font-size:15px; font-weight:700; letter-spacing:-.02em; color:var(--ink); }
+  .tabs{ display:flex; gap:2px; }
+  .tab{ font:inherit; font-size:14.5px; font-weight:600; color:var(--muted); cursor:pointer; background:none;
+    border:0; padding:8px 14px; border-radius:9px; position:relative; white-space:nowrap; transition:color .15s, background .15s;
+    text-decoration:none; display:inline-flex; align-items:center; }
+  .tab:hover{ color:var(--ink); background:var(--bg-soft); }
+  .tab.map-tab{ gap:6px; }
+  .tab-pin{ width:15px; height:15px; flex:none; }
+  .tab[aria-current="page"]{ color:var(--accent); }
+  .tab[aria-current="page"]::after{ content:""; position:absolute; left:14px; right:14px; bottom:-1px;
+    height:3px; border-radius:3px; background:var(--accent); }
+  @media(max-width:560px){
+    .brand-divider,.brand-text{ display:none; }
+    nav{ gap:2px; padding:0 12px; } .brand-logo{ height:32px; }
+    .tab{ padding:8px 8px; font-size:13px; } .tab[aria-current="page"]::after{ left:8px; right:8px; }
+  }
+
+  @keyframes rise{ from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none} }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{ animation-duration:.001ms !important; animation-delay:0s !important; transition-duration:.001ms !important; }
+  }
+
+  /* ---------------- PAGE SHELL ---------------- */
+  .page{ position:relative;
+    background:
+      radial-gradient(62% 52% at 100% -3%, rgba(34,168,132,.20), transparent 72%),
+      radial-gradient(56% 50% at -6% 103%, rgba(70,50,126,.14), transparent 74%),
+      #e9ebf2; }
+  .wrap{ max-width:820px; margin:0 auto; padding:0 clamp(18px,5vw,40px); }
+
+  /* hero */
+  .head{ padding:clamp(30px,5.4vh,54px) 0 clamp(28px,5vh,44px); border-bottom:1px solid var(--line); }
+  .eyebrow{ display:inline-flex; align-items:center; gap:11px; font-size:12px; font-weight:700;
+    letter-spacing:.18em; text-transform:uppercase; color:var(--teal); margin-bottom:20px; animation:rise .5s .02s both; }
+  .eyebrow::before{ content:""; width:30px; height:7px; border-radius:2px;
+    background:linear-gradient(90deg,var(--v0),var(--v1),var(--v2),var(--v3),var(--v5)); }
+  .head h1{ font-family:var(--display); font-size:clamp(32px,5vw,52px); font-weight:600; line-height:1.04;
+    letter-spacing:-.018em; color:var(--ink); animation:rise .5s .08s both; }
+  .head .lede{ font-size:clamp(16.5px,1.45vw,19.5px); color:var(--muted); line-height:1.62; margin:22px 0 0;
+    max-width:64ch; animation:rise .5s .16s both; }
+  .head .lede b{ color:var(--ink); font-weight:600; }
+
+  /* contents strip */
+  .toc{ display:flex; flex-wrap:wrap; gap:8px; margin:26px 0 0; animation:rise .5s .24s both; }
+  .toc a{ font-size:14px; font-weight:600; color:var(--muted); padding:7px 14px;
+    border:1px solid var(--line); border-radius:999px; background:rgba(255,255,255,.7); transition:border-color .15s, color .15s, background .15s; }
+  .toc a:hover{ color:var(--accent); border-color:#cfd2e0; background:#fff; }
+
+  /* sections */
+  section.sec{ padding:clamp(34px,6vh,60px) 0; border-bottom:1px solid var(--line); }
+  section.sec:last-of-type{ border-bottom:0; }
+  .sec-k{ font-size:12.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--teal); }
+  .sec-h{ font-family:var(--display); font-size:clamp(24px,3.2vw,32px); font-weight:600; letter-spacing:-.01em; color:var(--ink); margin:9px 0 0; }
+  .sec p{ font-size:16.5px; color:var(--muted); line-height:1.66; margin:18px 0 0; max-width:68ch; }
+  .sec p b{ color:var(--ink); font-weight:600; }
+  .sec p a{ color:var(--accent); text-decoration:underline; text-underline-offset:2px; }
+  .sec p + p{ margin-top:14px; }
+  .lead-line{ font-size:17.5px; color:var(--ink); line-height:1.62; margin:18px 0 0; max-width:68ch; font-weight:500; }
+
+  /* callout — the percentile-rank rule */
+  .callout{ margin:22px 0 0; padding:16px 20px; border-radius:14px; background:#f3f0fb; border:1px solid #e4ddf6;
+    font-size:15.5px; color:#4a3f6b; line-height:1.6; }
+  .callout b{ color:var(--accent-deep); }
+  .callout.teal{ background:#eef7f4; border-color:#d6ece4; color:#1f5a52; }
+  .callout.teal b{ color:#10463f; }
+  .callout.amber{ background:#fbf4ef; border-color:#f0e0d4; color:#7a5230; }
+  .callout.amber b{ color:#5e3d18; }
+
+  /* themes table */
+  .themes{ margin:22px 0 0; border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#fff; box-shadow:var(--shadow); }
+  .theme{ display:grid; grid-template-columns:14px 150px 1fr; gap:14px; align-items:start;
+    padding:16px 20px; border-bottom:1px solid var(--line-soft); }
+  .theme:last-child{ border-bottom:0; }
+  .theme .sw{ width:14px; height:14px; border-radius:4px; margin-top:3px; box-shadow:inset 0 0 0 1px rgba(0,0,0,.08); }
+  .theme .nm{ font-size:15.5px; font-weight:700; color:var(--ink); }
+  .theme .nm small{ display:block; font-size:12px; font-weight:600; color:var(--faint); margin-top:2px; }
+  .theme .ds{ font-size:15px; color:var(--muted); line-height:1.55; }
+  @media(max-width:620px){
+    .theme{ grid-template-columns:14px 1fr; gap:10px; }
+    .theme .ds{ grid-column:1 / -1; }
+  }
+
+  /* two-up measure cards */
+  .duo{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:22px 0 0; }
+  .mcard{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:20px 22px; box-shadow:var(--shadow); }
+  .mcard h3{ font-size:16.5px; font-weight:700; letter-spacing:-.01em; }
+  .mcard .form{ display:inline-block; margin:10px 0 0; font-size:12.5px; font-weight:600; color:var(--accent);
+    font-variant-numeric:tabular-nums; background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; padding:4px 10px; }
+  .mcard p{ font-size:15px; color:var(--muted); line-height:1.58; margin:12px 0 0; }
+  @media(max-width:620px){ .duo{ grid-template-columns:1fr; } }
+
+  /* sources list */
+  .srclist{ margin:22px 0 0; display:flex; flex-direction:column; gap:1px; background:var(--line);
+    border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+  .src{ background:#fff; padding:16px 20px; display:grid; grid-template-columns:1fr auto; gap:6px 16px; align-items:baseline; }
+  .src .nm{ font-size:15.5px; font-weight:700; color:var(--ink); }
+  .src .nm a{ color:var(--ink); text-decoration:none; }
+  .src .nm a:hover{ color:var(--accent); text-decoration:underline; }
+  .src .lic{ font-size:11.5px; font-weight:600; color:var(--teal); white-space:nowrap; }
+  .src .ds{ grid-column:1 / -1; font-size:14.5px; color:var(--muted); line-height:1.55; }
+  .src .ds a{ text-decoration:underline; text-underline-offset:2px; }
+  @media(max-width:620px){ .src{ grid-template-columns:1fr; } .src .lic{ grid-row:2; } }
+
+  /* limitations list */
+  .lims{ margin:22px 0 0; counter-reset:lim; }
+  .lim{ position:relative; padding:14px 0 14px 44px; border-bottom:1px solid var(--line-soft); }
+  .lim:last-child{ border-bottom:0; }
+  .lim::before{ counter-increment:lim; content:counter(lim); position:absolute; left:0; top:14px;
+    width:28px; height:28px; border-radius:8px; background:var(--bg-soft); border:1px solid var(--line);
+    color:var(--accent); font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center;
+    font-variant-numeric:tabular-nums; }
+  .lim b{ color:var(--ink); font-weight:700; }
+  .lim p{ font-size:15.5px; color:var(--muted); line-height:1.6; margin:4px 0 0; max-width:66ch; }
+  .lim p:first-child{ margin-top:0; }
+
+  /* footer */
+  footer{ padding:clamp(34px,6vh,56px) 0 clamp(44px,8vh,72px); }
+  footer .back{ display:inline-flex; align-items:center; gap:9px; font:inherit; font-size:15px; font-weight:600;
+    color:#fff; background:var(--accent); border-radius:12px; padding:13px 22px; box-shadow:0 8px 22px rgba(70,50,126,.30);
+    transition:background .2s, box-shadow .2s, transform .12s; }
+  footer .back:hover{ background:var(--accent-deep); box-shadow:0 12px 30px rgba(70,50,126,.40); transform:translateY(-1px); }
+  footer .scope{ margin-top:22px; font-size:12.5px; color:var(--faint); line-height:1.55; max-width:64ch; }
+
+  /* shared scroll offset so anchored sections clear the sticky nav */
+  section.sec{ scroll-margin-top:calc(var(--nav-h) + 14px); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">
+    <img src="logo.jpg" alt="MedVizion" class="brand-logo">
+    <span class="brand-divider"></span>
+    <span class="brand-text">Carer Map Ireland</span>
+  </div>
+  <div class="tabs">
+    <a class="tab" href="index.html">Home</a>
+    <a class="tab map-tab" href="index.html#map"><svg class="tab-pin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.9-3.1-7-7-7z" fill="#e23744"/><circle cx="12" cy="9" r="2.5" fill="#fff"/></svg>Explore the map</a>
+    <a class="tab" href="methods.html" aria-current="page">Methods</a>
+  </div>
+</nav>
+
+<main class="page">
+
+  <header class="head">
+    <div class="wrap">
+      <div class="eyebrow">Methods &amp; sources · Republic of Ireland</div>
+      <h1>How this map works.</h1>
+      <p class="lede">The map itself stays sparse on purpose. This page holds the fuller picture:
+        what the <b>Vulnerability</b> score measures, how need is combined with supply to show where to act,
+        where the data comes from, and the honest limits of an open-data prototype.</p>
+      <nav class="toc" aria-label="On this page">
+        <a href="#score">The Vulnerability score</a>
+        <a href="#themes">The four themes</a>
+        <a href="#targeting">Targeting measures</a>
+        <a href="#hse">HSE market gap</a>
+        <a href="#markers">Care-service markers</a>
+        <a href="#sources">Data sources</a>
+        <a href="#limits">Limitations</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============ THE SCORE ============ -->
+  <section class="sec" id="score">
+    <div class="wrap">
+      <div class="sec-k">The headline number</div>
+      <h2 class="sec-h">What the Vulnerability score is</h2>
+      <p class="lead-line">Every one of Ireland's 18,919 Census small areas gets a single Vulnerability
+        score from 0 to 100, where 100 is the greatest need.</p>
+      <p>The score folds together four themes: <b>Care load</b>, <b>Deprivation</b>, <b>Demand</b> and
+        <b>Isolation</b>. Each input is percentile-ranked across all small areas, the inputs are averaged
+        within each theme, and the four themes are averaged into the final score. This follows the
+        percentile-rank method used by the CDC/ATSDR Social Vulnerability Index and the OECD Handbook
+        on Constructing Composite Indicators, so unlike variables (a percentage, a deprivation score, a
+        rate) become comparable without us inventing weights.</p>
+      <div class="callout">
+        <b>Scores are percentile ranks, never percentages.</b> A score of 78 means an area is more
+        vulnerable than 78 percent of areas in Ireland. It does not mean 78 percent of people. Ranks
+        are relative to Ireland, so "high need" means in the worst third of Irish areas, not above any
+        official threshold.
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ THE FOUR THEMES ============ -->
+  <section class="sec" id="themes">
+    <div class="wrap">
+      <div class="sec-k">What goes in</div>
+      <h2 class="sec-h">The four themes</h2>
+      <p>Each theme captures one pressure on carers. Together they make up the Vulnerability score.</p>
+      <div class="themes">
+        <div class="theme">
+          <span class="sw" style="background:var(--v4)"></span>
+          <div class="nm">Care load<small>CSO Census 2022</small></div>
+          <div class="ds">The share of people in an area who are unpaid carers. More carers per area means more people carrying the load.</div>
+        </div>
+        <div class="theme">
+          <span class="sw" style="background:var(--v3)"></span>
+          <div class="nm">Deprivation<small>Pobal HP Index 2022</small></div>
+          <div class="ds">Economic pressure on households, from the Pobal HP Deprivation score. Carers who are themselves poorer have less to fall back on.</div>
+        </div>
+        <div class="theme">
+          <span class="sw" style="background:var(--v2)"></span>
+          <div class="nm">Demand<small>CSO Census 2022</small></div>
+          <div class="ds">How much care the population is likely to need: the disability rate plus the share of people aged 65 and over.</div>
+        </div>
+        <div class="theme">
+          <span class="sw" style="background:var(--v1)"></span>
+          <div class="nm">Isolation<small>CSO Census 2022</small></div>
+          <div class="ds">How cut off from help people are, measured by households with no car, the small-area signal for distance from services.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TARGETING MEASURES ============ -->
+  <section class="sec" id="targeting">
+    <div class="wrap">
+      <div class="sec-k">Where to act</div>
+      <h2 class="sec-h">Targeting measures: need meets supply</h2>
+      <p>The Vulnerability score is about need alone. The two measures below add a second ingredient,
+        the supply of in-home support, to show where need and a lack of nearby help line up. They are
+        <b>not drivers of vulnerability</b>: they combine need with supply to point to where action would
+        do the most good.</p>
+      <div class="duo">
+        <div class="mcard">
+          <h3>Service desert</h3>
+          <span class="form">Need &times; distance to nearest support</span>
+          <p>An area scores high only when it has both high need and no carer support nearby. The two are
+            multiplied, not averaged, so one alone is not enough. "Support" here means home-care agencies
+            and Family Carers Ireland centres. Distance is measured to the nearest service, not the
+            average of all, so distant offices do not pollute the figure.</p>
+        </div>
+        <div class="mcard">
+          <h3>Opportunity (Need &times; Supply)</h3>
+          <span class="form">A 3&times;3 need-by-supply view</span>
+          <p>The same two ingredients shown side by side rather than fused: need on one axis, distance to
+            support on the other, split into thirds. The dark corner is high need and far from help. It
+            lets you see which axis drives each area, separating "high need but served" from "low need but
+            remote", which a single score blurs.</p>
+        </div>
+      </div>
+      <p><b>Residential gap</b> applies the same idea for nursing-home operators rather than in-home
+        support: <b>Demand</b> (the older and disabled population, who are likely to need residential care)
+        multiplied by distance to the nearest nursing home. It points to where that demand sits far from a
+        home. It uses Demand, not the full carer Vulnerability, because residential care is driven by who
+        needs care, not by how many informal carers an area has.</p>
+      <div class="callout teal">
+        <b>These are shortlists to validate on the ground, not verdicts.</b> Because they depend on where
+        a provider's office sits, a flagged desert can occasionally be an area that an office actually
+        reaches. Treat them as where to look first.
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HSE MARKET GAP ============ -->
+  <section class="sec" id="hse">
+    <div class="wrap">
+      <div class="sec-k">The operator view</div>
+      <h2 class="sec-h">The HSE market-gap view</h2>
+      <p>Home-support providers apply to serve one of the 20 HSE Integrated Healthcare Areas. So the map
+        also rolls everything up to those 20 areas. For each, we take the population-weighted average of
+        small-area need, count the approved providers serving the area, and subtract the supply rank from
+        the need rank. A higher score means a wider gap between need and provision.</p>
+      <p>Subtracting ranks keeps the score bounded and comparable. We rejected dividing need by supply,
+        which exploded for the lowest-supply area and gave a misleading result.</p>
+      <div class="callout amber">
+        <b>The ranking is reliable; the exact score is indicative.</b> Lead with where an area sits in
+        the order, not its precise number. The choropleth uses quantile classes so it stays robust to
+        outliers.
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CARE-SERVICE MARKERS ============ -->
+  <section class="sec" id="markers">
+    <div class="wrap">
+      <div class="sec-k">The dots on the map</div>
+      <h2 class="sec-h">Care-service markers</h2>
+      <p>Three point layers show where carer and older-person support physically exists: nursing homes
+        (543, from the HIQA register), home-care agencies (206 distinct offices, from the 20 HSE
+        approved-provider lists) and Family Carers Ireland centres (16). Addresses were geocoded with the
+        keyless OpenStreetMap Nominatim service.</p>
+      <div class="callout amber">
+        <b>An office is not where care is delivered.</b> A home-care agency's dot is its registered
+        business address. The carers it employs drive out to people's homes across a wide area, so an
+        area 40 km from an office may still be served. Distance to the nearest office is a proxy for
+        access, not a service boundary. This is the single biggest caveat.
+      </div>
+      <p><b>Geocoding precision is uneven.</b> Eircodes are not openly geocodable, so home-care offices
+        are the weak layer: only about 27 of 201 resolved to a street, most landed at the town centre,
+        and some at the county. Every point carries a precision flag, and the error matters least in
+        rural deserts where true distances are tens of kilometres.</p>
+      <p><b>Nursing homes are residential care, not in-home help.</b> They make up roughly 71 percent of
+        the dots, but a nursing home is a place someone moves into; it replaces home caring rather than
+        supporting the informal carer. They stay visible for context but are excluded from the Service
+        desert score.</p>
+    </div>
+  </section>
+
+  <!-- ============ DATA SOURCES ============ -->
+  <section class="sec" id="sources">
+    <div class="wrap">
+      <div class="sec-k">Provenance</div>
+      <h2 class="sec-h">Data sources</h2>
+      <p>Everything is keyless open data for the Republic of Ireland, verified live against the source
+        files on 8 June 2026.</p>
+      <div class="srclist">
+        <div class="src">
+          <div class="nm"><a href="https://www.cso.ie/en/census/census2022/" target="_blank" rel="noopener">CSO Census 2022</a></div>
+          <div class="lic">CSO PxStat</div>
+          <div class="ds">Small-area statistics behind Care load, Demand and Isolation: carer rate, disability rate, age structure, and no-car households.</div>
+        </div>
+        <div class="src">
+          <div class="nm"><a href="https://www.pobal.ie/pobal-hp-deprivation-index/" target="_blank" rel="noopener">Pobal HP Deprivation Index 2022</a></div>
+          <div class="lic">CC BY</div>
+          <div class="ds">The Deprivation theme. Released at Electoral Division level, so each small area inherits its parent division's score.</div>
+        </div>
+        <div class="src">
+          <div class="nm">Tailte Éireann / GeoHive boundaries</div>
+          <div class="lic">CC BY 4.0</div>
+          <div class="ds">Small Area, NUTS3 region and HSE Integrated Healthcare Area polygons, the geometry every layer is drawn on.</div>
+        </div>
+        <div class="src">
+          <div class="nm"><a href="https://www2.hse.ie/services/home-support-service/choosing-an-approved-provider/" target="_blank" rel="noopener">HSE approved home-support lists</a></div>
+          <div class="lic">Public</div>
+          <div class="ds">The 20 per-area provider lists, counted directly for the market-gap supply figure and geocoded for the home-care markers.</div>
+        </div>
+        <div class="src">
+          <div class="nm"><a href="https://www.hiqa.ie/" target="_blank" rel="noopener">HIQA Register of Designated Centres for Older People</a></div>
+          <div class="lic">Public</div>
+          <div class="ds">The nursing-home markers (context only, excluded from the Service desert score).</div>
+        </div>
+        <div class="src">
+          <div class="nm"><a href="https://www.familycarers.ie/carer-supports/get-support/" target="_blank" rel="noopener">Family Carers Ireland centres</a></div>
+          <div class="lic">Public</div>
+          <div class="ds">The 16 addressed support centres counted as carer support in the Service desert and Opportunity measures.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LIMITATIONS ============ -->
+  <section class="sec" id="limits">
+    <div class="wrap">
+      <div class="sec-k">Honesty</div>
+      <h2 class="sec-h">Limitations</h2>
+      <p>These are the known edges of a keyless, open-data prototype. The rule of thumb: everything here
+        is an area-level signal to investigate, never a verdict about a place or a person.</p>
+      <div class="lims">
+        <div class="lim">
+          <p><b>Area-level rates, not individuals.</b> The map shows where risk factors cluster by area.
+            Small-area census data cannot identify any individual carer.</p>
+        </div>
+        <div class="lim">
+          <p><b>Scores are 0 to 100 ranks, not percentages.</b> They place an area against the rest of
+            Ireland, so colours are relative, not absolute thresholds.</p>
+        </div>
+        <div class="lim">
+          <p><b>Deprivation is borrowed from the larger area.</b> The Pobal score is not openly released
+            at small-area level, so each small area inherits its parent Electoral Division's value. Big
+            differences between areas survive; fine variation within a division is lost.</p>
+        </div>
+        <div class="lim">
+          <p><b>Disability is the total rate, not severity.</b> The census gives only the overall
+            disability figure at small-area level, used here as a reasonable stand-in.</p>
+        </div>
+        <div class="lim">
+          <p><b>Geocoding is approximate.</b> Offices are placed by reading their address text, often only
+            to the town. Distances are straight-line, so real journeys, especially in the rural west, are
+            longer than the map implies.</p>
+        </div>
+        <div class="lim">
+          <p><b>Provider size is unknown.</b> The data shows where providers are, not their capacity or
+            how busy they already are, so a small agency and a large one count the same.</p>
+        </div>
+        <div class="lim">
+          <p><b>Averages hide spread.</b> A region or HSE-area colour is the average of its small areas,
+            so a calm-looking area can still hide pockets of severe need. Zoom in to see the truth.</p>
+        </div>
+        <div class="lim">
+          <p><b>It is a snapshot.</b> Built on Census 2022 and provider registers as of mid-2026.
+            Registers change as providers open and close; the census runs about every five years.</p>
+        </div>
+        <div class="lim">
+          <p><b>Republic of Ireland only.</b> Northern Ireland uses separate census geography (NISRA) and
+            a different deprivation index (NIMDM). An all-island version is a distinct piece of work.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <a class="back" href="index.html#map">
+        Explore the map
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <p class="scope">Data: CSO Census 2022 and Pobal HP Deprivation 2022. Boundaries: Tailte Éireann /
+        GeoHive, CC BY 4.0. Service points: HSE approved home-support lists, HIQA register and Family
+        Carers Ireland. Republic of Ireland only.</p>
+    </div>
+  </footer>
+
+</main>
+
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Carer support services in Ireland — collation
 
-Reference for the carer-facing resources panel (see [`CARER_WEBSITE_FEATURES.md`](../_archive/CARER_WEBSITE_FEATURES.md)). Verified contacts and links a carer could be pointed to from their area on the map. Compiled 8 June 2026.
+Reference for the carer-facing resources panel: verified contacts and links a carer could be pointed to from their area on the map. Compiled 8 June 2026.
 
 **Verification status:** the Careline number and the 2026 financial figures were confirmed against the live source pages. The HSE `list/3/carerssupport/...` page URLs returned 404 to the automated fetcher (likely bot-blocking) and are taken from search snippets — click through to confirm before they go into the build.
 
@@ -14,7 +14,7 @@ Yes, in two forms — neither is a single comprehensive national directory:
    <https://www.hse.ie/eng/services/list/3/carerssupport/supportorganisations/>. Thin — points to only **Family Carers Ireland**, **Care Alliance Ireland**, and the **Citizens Information Board**. Sibling pages cover [health services](https://www.hse.ie/eng/services/list/3/carerssupport/healthservices/), [financial supports](https://www.hse.ie/eng/services/list/3/carerssupport/financial/), and [caring for older people](https://www.hse.ie/eng/services/list/3/carerssupport/caringforolderpeople.html).
 2. **Local/regional directory PDFs** per Local Health Office — e.g. [Longford & Westmeath](https://www.hse.ie/eng/services/publications/olderpeople/hse-directory-of-supports-and-services-for-older-people-in-longford-and-westmeath.pdf), [Laois & Offaly](https://www.hse.ie/eng/services/publications/olderpeople/directory-of-health-care-and-social-care-supports-for-older-people-in-laois-and-offaly.pdf), plus a Laois/Offaly *"Who Cares" carers resource pack*. County-level, not consistent nationally.
 
-The richest single directory is **not** the HSE's — it's [Care Alliance Ireland's List of Members](https://www.carealliance.ie/List-of-members) (~50 voluntary orgs). That asymmetry (HSE's national list is short and high-level; real depth sits in the voluntary sector and scattered county PDFs) is the same "support is coarse and sparse" point [`CARER_SCOPING.md`](../_archive/CARER_SCOPING.md) makes.
+The richest single directory is **not** the HSE's — it's [Care Alliance Ireland's List of Members](https://www.carealliance.ie/List-of-members) (~50 voluntary orgs). That asymmetry (HSE's national list is short and high-level; real depth sits in the voluntary sector and scattered county PDFs) underlines the point this map is built around: carer support is coarse and sparsely mapped.
 
 ---
 

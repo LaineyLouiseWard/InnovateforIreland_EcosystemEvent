@@ -93,7 +93,37 @@
   .btn-signin:active{ transform:translateY(1px); }
   .btn-signin svg{ width:17px; height:17px; }
 
-  .card-foot{ text-align:center; margin-top:22px; font-size:13px; color:var(--muted); }
+  /* "just click here" demo cue: a mouse pointer that drifts in and taps Sign in, with a pulse ring */
+  .btn-wrap{ position:relative; }
+  .cue{ position:absolute; left:60%; top:36%; width:30px; height:30px; pointer-events:none; z-index:6;
+    filter:drop-shadow(0 4px 6px rgba(24,26,43,.4)); transform:translate(30px,28px);
+    animation:cue-move 2.1s cubic-bezier(.22,1,.36,1) infinite; }
+  .cue svg{ width:100%; height:100%; display:block; }
+  @keyframes cue-move{
+    0%,100%{ transform:translate(30px,28px) scale(1); }
+    34%    { transform:translate(0,0)   scale(1); }
+    46%    { transform:translate(0,0)   scale(.8); }
+    58%    { transform:translate(0,0)   scale(1); }
+    80%    { transform:translate(30px,28px) scale(1); }
+  }
+  .cue-ring{ position:absolute; left:60%; top:36%; width:16px; height:16px; margin:-8px 0 0 -8px;
+    border:2.5px solid #fff; border-radius:50%; opacity:0; pointer-events:none; z-index:5;
+    animation:cue-ring 2.1s ease-out infinite; }
+  @keyframes cue-ring{
+    0%,40%{ transform:scale(.3); opacity:0; }
+    47%   { opacity:.85; }
+    72%   { transform:scale(2.6); opacity:0; }
+    100%  { opacity:0; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .cue{ animation:none; transform:translate(0,0); }
+    .cue-ring{ animation:none; display:none; }
+  }
+
+  .demo-note{ text-align:center; margin-top:16px; font-size:12.5px; color:var(--faint); }
+  .demo-note b{ color:var(--muted); font-weight:600; }
+
+  .card-foot{ text-align:center; margin-top:14px; font-size:13px; color:var(--muted); }
   .card-foot a{ font-weight:600; color:var(--accent); }
   .card-foot a:hover{ color:var(--accent-deep); }
 
@@ -134,19 +164,19 @@
   <!-- brand side -->
   <div class="brand-panel">
     <div class="bp-logo">
-      <img src="logo.jpg" alt="MedVizion" style="height:40px;width:auto;display:block;border-radius:8px;background:#fff;padding:4px 10px;">
+      <img src="logo.jpg" alt="MedVizion" style="height:58px;width:auto;display:block;border-radius:12px;background:#fff;padding:11px 18px;box-shadow:0 6px 20px rgba(24,26,43,.18);">
     </div>
 
     <div class="bp-copy">
       <div class="eyebrow">Support services tool</div>
-      <h2>Where carer need concentrates.</h2>
+      <h2>Who cares for unpaid carers?</h2>
       <p>Region-by-region data on where unpaid carers are most at risk, so support reaches them before crisis.</p>
     </div>
 
     <div class="bp-stats">
-      <div class="bp-stat"><div class="n">299k</div><div class="l">unpaid carers</div></div>
-      <div class="bp-stat"><div class="n">8</div><div class="l">regions mapped</div></div>
-      <div class="bp-stat"><div class="n">3</div><div class="l">at-risk indices</div></div>
+      <div class="bp-stat"><div class="n">300k</div><div class="l">unpaid carers</div></div>
+      <div class="bp-stat"><div class="n">18,900</div><div class="l">small areas</div></div>
+      <div class="bp-stat"><div class="n">20</div><div class="l">HSE areas</div></div>
     </div>
   </div>
 
@@ -162,28 +192,33 @@
       <form id="form" novalidate>
         <div class="field">
           <label for="username">Username</label>
-          <input type="text" id="username" name="username" placeholder="your.name@organisation.ie" autocomplete="username">
-          <div class="err-msg">Please enter your username.</div>
+          <input type="text" id="username" name="username" value="demo@medvizion.ie" autocomplete="username">
         </div>
         <div class="field">
           <label for="password">Password</label>
-          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password">
-          <div class="err-msg">Please enter your password.</div>
+          <input type="password" id="password" name="password" value="demo1234" autocomplete="current-password">
         </div>
 
         <div class="row">
           <label class="check-label">
-            <input type="checkbox" id="remember" name="remember">
+            <input type="checkbox" id="remember" name="remember" checked>
             Remember me
           </label>
           <a href="#" class="forgot" id="forgotLink">Forgot password?</a>
         </div>
 
-        <button type="submit" class="btn-signin">
-          Sign in
-          <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
+        <div class="btn-wrap">
+          <button type="submit" class="btn-signin">
+            Sign in
+            <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="cue-ring" aria-hidden="true"></span>
+          <span class="cue" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 2.2 5 18.5 9.1 14.4 11.9 20.4 14.3 19.4 11.5 13.5 17 13Z" fill="#fff" stroke="#181a2b" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          </span>
+        </div>
       </form>
+      <p class="demo-note">Demo sign-in — just select <b>Sign in</b> to open the map.</p>
 
       <p class="card-foot">No account? <a href="#">Contact your administrator</a></p>
     </div>
@@ -219,20 +254,11 @@
   const form = document.getElementById("form");
   const overlay = document.getElementById("overlay");
 
-  // sign in — validate then redirect to the map
+  // demo sign-in — no validation, just open the map
   form.addEventListener("submit", e => {
     e.preventDefault();
-    let ok = true;
-    ["username","password"].forEach(id => {
-      const el = document.getElementById(id);
-      if(!el.value.trim()){ el.classList.add("err"); ok = false; }
-      else el.classList.remove("err");
-    });
-    if(ok) window.location.href = "index.html";
+    window.location.href = "index.html";
   });
-  ["username","password"].forEach(id =>
-    document.getElementById(id).addEventListener("input", e => e.target.classList.remove("err"))
-  );
 
   // forgot password modal
   document.getElementById("forgotLink").addEventListener("click", e => { e.preventDefault(); overlay.classList.add("open"); });

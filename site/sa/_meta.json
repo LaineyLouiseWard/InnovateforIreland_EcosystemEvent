@@ -84,6 +84,13 @@
    22.3,
    34.0,
    49.2
+  ],
+  "rd": [
+   4.7,
+   11.7,
+   21.3,
+   31.8,
+   45.4
   ]
  },
  "measures": {
@@ -92,7 +99,8 @@
   "st": "Strain",
   "dm": "Demand",
   "is": "Isolation",
-  "sd": "Service desert"
+  "sd": "Service desert",
+  "rd": "Residential gap"
  },
  "note": "Percentile rank across 18,919 small areas (0-100, 100 = greatest need). Service desert = Vulnerability x distance to nearest carer support (home care / FCI); high only where need and isolation coincide.",
  "density_km": 25.0,

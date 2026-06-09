@@ -17,7 +17,8 @@
   "prdMean": 60.69,
   "vP05": 27.2,
   "vP95": 80.9,
-  "vTop10": 335
+  "vTop10": 335,
+  "rdMean": 32.14
  },
  {
   "region": "South-West",
@@ -37,7 +38,8 @@
   "prdMean": 60.57,
   "vP05": 24.4,
   "vP95": 76.8,
-  "vTop10": 323
+  "vTop10": 323,
+  "rdMean": 27.42
  },
  {
   "region": "Border",
@@ -57,7 +59,8 @@
   "prdMean": 66.32,
   "vP05": 35.4,
   "vP95": 81.5,
-  "vTop10": 311
+  "vTop10": 311,
+  "rdMean": 35.52
  },
  {
   "region": "Mid-West",
@@ -77,7 +80,8 @@
   "prdMean": 56.26,
   "vP05": 26.2,
   "vP95": 78.7,
-  "vTop10": 282
+  "vTop10": 282,
+  "rdMean": 31.99
  },
  {
   "region": "South-East",
@@ -97,7 +101,8 @@
   "prdMean": 50.76,
   "vP05": 32.0,
   "vP95": 75.4,
-  "vTop10": 176
+  "vTop10": 176,
+  "rdMean": 29.87
  },
  {
   "region": "Midlands",
@@ -117,7 +122,8 @@
   "prdMean": 58.4,
   "vP05": 31.8,
   "vP95": 75.2,
-  "vTop10": 115
+  "vTop10": 115,
+  "rdMean": 28.88
  },
  {
   "region": "Mid-East",
@@ -137,7 +143,8 @@
   "prdMean": 57.85,
   "vP05": 22.0,
   "vP95": 72.5,
-  "vTop10": 143
+  "vTop10": 143,
+  "rdMean": 20.66
  },
  {
   "region": "Dublin",
@@ -157,6 +164,7 @@
   "prdMean": 25.84,
   "vP05": 18.3,
   "vP95": 70.3,
-  "vTop10": 209
+  "vTop10": 209,
+  "rdMean": 14.29
  }
 ]

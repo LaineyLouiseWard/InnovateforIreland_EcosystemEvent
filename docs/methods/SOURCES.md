@@ -74,8 +74,7 @@ Codes/URLs below are all confirmed live; wiring them in is the next step.
 
 A 4-theme composite per Small Area, each input percentile-ranked across all 18,919
 SAs (0–100, 100 = greatest need), themes averaged. Method: CDC/ATSDR Social
-Vulnerability Index + OECD Composite Indicators Handbook. See `_archive/BUILD_PLANS.md`
-(Plan 1) and `_archive/VARIABLE_VERIFICATION_REPORT.md`.
+Vulnerability Index + OECD Composite Indicators Handbook.
 
 | Theme | Input | Source | New file |
 |---|---|---|---|
@@ -139,10 +138,10 @@ fallback: full address → town+county → county. Results cache to `data/raw/ge
 so the slow pass runs once; `supply_meta.json` records the precision mix (address vs town
 vs county) per layer. Points geocoded to town/county are flagged "approx" in the tooltip.
 
-Served copies are mirrored to `site/supply/*.geojson`; `site/zoom.html` gains a "Care
-supply" panel with three toggles (default off), distinct coloured markers, and click
-tooltips (name, beds/serves, address, phone, website). **ROI only** — NI nursing homes
-(RQIA) and home-care providers are a separate registry.
+Served copies are mirrored to `site/supply/*.geojson`; the map gains a "Care supply" panel
+with three toggles (default off), distinct coloured markers, and click tooltips (name,
+beds/serves, address, phone, website). **ROI only** — NI nursing homes (RQIA) and home-care
+providers are a separate registry.
 
 ---
 
@@ -160,7 +159,7 @@ Built by `scripts/build_market_gap.py`.
 | Score | `PR(mean vulnerability) / PR(provider density)`, percentile-ranked across the 20 IHAs | `market_gap_score` |
 
 Outputs: `data/iha_market_gap.csv` (ranked, the operator export), `site/iha/iha_market_gap.geojson`
-+ `site/iha/_meta.json`. The site gains a third tab, **Market Gap** — IHA choropleth, ranked
++ `site/iha/_meta.json`. The site gains a **Market Gap** view — IHA choropleth, ranked
 list, click-to-zoom, and a client-side CSV download. No Fair Deal adjustment in v1.
 
 Sanity checks: population 5,148,496 and 65+ 776,149 reconcile with Census 2022 ROI totals;

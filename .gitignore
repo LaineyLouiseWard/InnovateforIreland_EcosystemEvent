@@ -9,5 +9,16 @@ data/raw/
 # Archived planning docs (kept local, out of the public repo)
 _archive/
 
+# Non-website local files: emails, raw team inputs, personal drafts
+_local/
+
+# Local editor/agent tooling, not part of the project
+.claude/
+.impeccable/
+.github/skills/
+
+# Raw design source (the exported logo lives in site/)
+site/logo_raw.jpg
+
 .DS_Store
 .vercel
