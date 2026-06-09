@@ -1420,7 +1420,7 @@ function updateRankLabels(){
 function selectIHA(code){
   gapSel=code; gapLayer.setStyle(gapStyle);
   let hit=null; gapLayer.eachLayer(l=>{ if(l.feature.properties.code===code) hit=l; });
-  if(hit) hit.bringToFront();   // highlight only — no zoom, so you can click straight to another area to compare
+  if(hit){ hit.bringToFront(); gapMap.fitBounds(hit.getBounds(),{padding:[40,40]}); }   // zoom into the area (like the local view); "← All 20 areas" zooms back out to compare
   document.querySelectorAll("#gapList .gap-row").forEach(r=>r.classList.toggle("active",r.dataset.code===code));
   const row=document.querySelector(`#gapList .gap-row[data-code="${code}"]`); if(row) row.scrollIntoView({block:"nearest"});
   showTarget(code);
@@ -1451,6 +1451,7 @@ function drawTownPins(code){
 function exitTarget(){
   const panel=document.querySelector(".gap-panel"); panel.classList.remove("mode-detail");
   clearTownPins(); gapSel=null; if(gapLayer) gapLayer.setStyle(gapStyle);
+  if(gapMap&&gapLayer) gapMap.fitBounds(gapLayer.getBounds(),{padding:[30,30]});   // back out to the national view
   document.querySelectorAll("#gapList .gap-row").forEach(r=>r.classList.remove("active"));
 }
 function showTarget(code){
