@@ -13,7 +13,7 @@ help and where to put the next service before carers reach crisis.
 ![Vercel](https://img.shields.io/badge/Vercel-live-000?logo=vercel&logoColor=white)
 ![Built with Claude Code](https://img.shields.io/badge/built_with-Claude_Code-D97757?logo=anthropic&logoColor=white)
 
-**Live:** https://innovateforireland-ecosystemevent.vercel.app
+**Live:** https://carer-map-ireland.vercel.app
 
 ![Carer Map Ireland cycling through its three geography levels: the 8 regions, all 18,919 Census small areas, and the 20 HSE areas ranked by market gap](media/demo.gif)
 
