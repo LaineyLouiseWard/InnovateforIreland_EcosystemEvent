@@ -1,4 +1,4 @@
-name: InnovateforIreland_EcosystemEvent
+name: carer-map-ireland
 channels:
   - conda-forge
 dependencies:

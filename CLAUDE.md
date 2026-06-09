@@ -8,7 +8,7 @@ It's a fast, half-day, several-people-at-once build, so the hygiene below matter
 
 ```bash
 conda env create -f environment.yml
-go InnovateforIreland_EcosystemEvent   # cd in + activate the env
+go carer-map-ireland   # cd in + activate the env
 ```
 
 Python 3.12 + geopandas/pandas/matplotlib. Add new deps to `environment.yml` (not ad-hoc `pip install`) so everyone stays in sync.

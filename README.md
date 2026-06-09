@@ -72,7 +72,7 @@ scoring.
 
 ```bash
 conda env create -f environment.yml
-go InnovateforIreland_EcosystemEvent   # cd in + activate the env
+go carer-map-ireland   # cd in + activate the env
 ```
 
 The site is static, with no build step. Serve `site/` over HTTP so the map's data fetches
