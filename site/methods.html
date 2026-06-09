@@ -210,8 +210,8 @@
       <h2 class="sec-h">What the Vulnerability score is</h2>
       <p class="lead-line">Every one of Ireland's 18,919 Census small areas gets a single Vulnerability
         score from 0 to 100, where 100 is the greatest need.</p>
-      <p>The score folds together four themes: <b>Care load</b>, <b>Deprivation</b>, <b>Demand</b> and
-        <b>Isolation</b>. Each input is percentile-ranked across all small areas, the inputs are averaged
+      <p>The score folds together four themes: <b>Carer share</b>, <b>Deprivation</b>, <b>Demand</b> and
+        <b>Hard to reach</b>. Each input is percentile-ranked across all small areas, the inputs are averaged
         within each theme, and the four themes are averaged into the final score. This follows the
         percentile-rank method used by the CDC/ATSDR Social Vulnerability Index and the OECD Handbook
         on Constructing Composite Indicators, so unlike variables (a percentage, a deprivation score, a
@@ -234,7 +234,7 @@
       <div class="themes">
         <div class="theme">
           <span class="sw" style="background:var(--v4)"></span>
-          <div class="nm">Care load<small>CSO Census 2022</small></div>
+          <div class="nm">Carer share<small>CSO Census 2022</small></div>
           <div class="ds">The share of people in an area who are unpaid carers. More carers per area means more people carrying the load.</div>
         </div>
         <div class="theme">
@@ -249,7 +249,7 @@
         </div>
         <div class="theme">
           <span class="sw" style="background:var(--v1)"></span>
-          <div class="nm">Isolation<small>CSO Census 2022</small></div>
+          <div class="nm">Hard to reach<small>CSO Census 2022</small></div>
           <div class="ds">How cut off from help people are, measured by households with no car, the small-area signal for distance from services.</div>
         </div>
       </div>
@@ -272,15 +272,18 @@
           <p>An area scores high only when it has both high need and no carer support nearby. The two are
             multiplied, not averaged, so one alone is not enough. "Support" here means home-care agencies
             and Family Carers Ireland centres. Distance is measured to the nearest service, not the
-            average of all, so distant offices do not pollute the figure.</p>
+            average of all, so distant offices do not pollute the figure. Mapping distance to the nearest
+            service this way follows the USDA Food Access Research Atlas, the standard method for mapping
+            deserts.</p>
         </div>
         <div class="mcard">
-          <h3>Opportunity (Need &times; Supply)</h3>
+          <h3>Need &times; support</h3>
           <span class="form">A 3&times;3 need-by-supply view</span>
           <p>The same two ingredients shown side by side rather than fused: need on one axis, distance to
             support on the other, split into thirds. The dark corner is high need and far from help. It
             lets you see which axis drives each area, separating "high need but served" from "low need but
-            remote", which a single score blurs.</p>
+            remote", which a single score blurs. The two-axis grid is a Stevens bivariate choropleth, a
+            standard way to show two measures at once.</p>
         </div>
       </div>
       <p><b>Residential gap</b> applies the same idea for nursing-home operators rather than in-home
@@ -352,7 +355,7 @@
         <div class="src">
           <div class="nm"><a href="https://www.cso.ie/en/census/census2022/" target="_blank" rel="noopener">CSO Census 2022</a></div>
           <div class="lic">CSO PxStat</div>
-          <div class="ds">Small-area statistics behind Care load, Demand and Isolation: carer rate, disability rate, age structure, and no-car households.</div>
+          <div class="ds">Small-area statistics behind Carer share, Demand and Hard to reach: carer rate, disability rate, age structure, and no-car households.</div>
         </div>
         <div class="src">
           <div class="nm"><a href="https://www.pobal.ie/pobal-hp-deprivation-index/" target="_blank" rel="noopener">Pobal HP Deprivation Index 2022</a></div>
@@ -377,7 +380,7 @@
         <div class="src">
           <div class="nm"><a href="https://www.familycarers.ie/carer-supports/get-support/" target="_blank" rel="noopener">Family Carers Ireland centres</a></div>
           <div class="lic">Public</div>
-          <div class="ds">The 16 addressed support centres counted as carer support in the Service desert and Opportunity measures.</div>
+          <div class="ds">The 16 addressed support centres counted as carer support in the Service desert and Need &times; support measures.</div>
         </div>
       </div>
     </div>
