@@ -34,8 +34,8 @@ rather than fabricate it.
 **Flag count (non-compensatory check).** Averaging is compensatory: extreme deprivation can
 be diluted by a mild carer share. Following the SVI's flag mechanism, each SA also carries a
 flag count — how many of its four themes sit in the worst national quartile (theme score
-≥ 75). Computed client-side in `site/index.html` (`flagCount`), shown in SA tooltips and in
-each region's detail panel as the share of areas flagged on 3+ themes. The original project
+≥ 75). Computed client-side in `site/index.html` (`flagCount`), shown in each SA's tooltip
+(kept off the region panel to avoid stacking measures). The original project
 brainstorm proposed quartile-overlap as the *primary* method; it survives here as the
 robustness layer, with the composite as the headline (the composite is what the desert and
 market-gap measures need as a continuous input). `scripts/check_robustness.py` reports theme

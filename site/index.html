@@ -736,7 +736,11 @@ function flagCount(p){ return FLAG_THEMES.reduce((n,k)=>n+(p[k]!=null&&p[k]>=75?
 function hotspotBadge(top,total,cta){
   if(!top) return "";
   const tail = cta ? ` ${cta}` : "";
-  return `<div class="hotspot"><span aria-hidden="true">⚠</span><span><b>${top}${total?` of ${total.toLocaleString("en-IE")}`:""} small areas</b> here rank in Ireland's most-vulnerable tenth.${tail}</span></div>`;
+  // percentage-led so it reads at a glance, and the same metric as the home-page hero bars
+  const lead = total
+    ? `<b>${Math.round(100*top/total)}% of its ${total.toLocaleString("en-IE")} small areas</b> rank in Ireland's most-vulnerable tenth.`
+    : `<b>${top} small areas</b> here rank in Ireland's most-vulnerable tenth.`;
+  return `<div class="hotspot"><span aria-hidden="true">⚠</span><span>${lead}${tail}</span></div>`;
 }
 
 // ---- classification --------------------------------------------------------
@@ -779,10 +783,6 @@ function regionColour(d){
   // so a colour means the same percentile at every zoom level (region means just cluster mid-scale)
   const c = uniClass(d[MEAN_KEY[MEAS]], SA_META.breaks[MEAS]);
   return c<0 ? NO_DATA : VIRIDIS[c];
-}
-function regionRank(name){
-  const arr=[...ROWS].sort((a,b)=>b[MEAN_KEY[MEAS]]-a[MEAN_KEY[MEAS]]);
-  return arr.findIndex(d=>d.region===name)+1;
 }
 
 // ================= view + geography-level routing =================
@@ -1205,8 +1205,7 @@ function openDetail(name){
       + `<div class="big-l" style="margin-top:13px">${L.sub}</div>`;
   } else {
     const score=Math.round(d[MEAN_KEY[MEAS]]);
-    const rank=regionRank(name), rt=rank===1?"highest of 8":rank===8?"lowest of 8":`#${rank} of 8`;
-    html+=`<span class="chip"><span class="sw" style="background:${regionColour(d)}"></span>${MEASURES[MEAS].label} · ${rt}</span>
+    html+=`<span class="chip"><span class="sw" style="background:${regionColour(d)}"></span>${MEASURES[MEAS].label}</span>
       <div class="big">${score}<span class="u">/100</span></div>
       <div class="big-l">Region average · ${MEASURES[MEAS].label.toLowerCase()}</div>
       <div class="gauge" style="background:linear-gradient(90deg,var(--v0),var(--v2),var(--v5))"><span class="pin" style="left:${score}%"></span></div>
@@ -1214,14 +1213,7 @@ function openDetail(name){
   }
   if(d.vP05!=null){
     const tot = (SA_META && SA_META.regions[name]) ? SA_META.regions[name].count : null;
-    // the non-compensatory companion fact: how much of the region is severe across themes at
-    // once, not just high on the averaged score — "the four pressures below" = the driver bars
-    const fc=saCache[name]; let flagTail="";
-    if(fc&&fc.features.length){
-      const pct=Math.round(100*fc.features.reduce((n,f)=>n+(flagCount(f.properties)>=3?1:0),0)/fc.features.length);
-      flagTail=`${pct}% are in Ireland's worst quarter for three or more of the four pressures below.`;
-    }
-    html+=hotspotBadge(d.vTop10,tot,flagTail);
+    html+=hotspotBadge(d.vTop10,tot);
   }
   // only the four themes that actually build the Vulnerability score — not the headline or the desert fusion
   html+=`<div class="mbreak-h">What drives the need here</div><div class="mbreak">`;
