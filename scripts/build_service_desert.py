@@ -370,12 +370,22 @@ def patch_regions(rows):
 def write_top(rows, n=100):
     """The top-N SAs by Service Desert Score, with centroids so the map can drop
     markers (they span regions and aren't all loaded at once) and a table can
-    list the greatest unmet need. Drives the Plan 3 highlight toggle + table."""
+    list the greatest unmet need. Drives the Plan 3 highlight toggle + table.
+    Carries the nearest-settlement name so the table reads as places, not codes."""
+    towns = {}
+    town_csv = ROOT / "data" / "sa_town_names.csv"
+    if town_csv.exists():
+        with town_csv.open() as f:
+            towns = {r["sa_2022_code"]: r for r in csv.DictReader(f)}
     ranked = sorted((r for r in rows if r["sd"] is not None),
                     key=lambda r: -r["sd"])[:n]
-    out = [{"c": r["code"], "region": r["region"], "sd": r["sd"], "v": r["v"],
-            "dn": round(r["d_nearest"], 1), "nt": r["nt"], "nl": r["nl"],
-            "lon": round(r["lon"], 5), "lat": round(r["lat"], 5)} for r in ranked]
+    out = []
+    for r in ranked:
+        t = towns.get(r["code"]) or towns.get(r["code"].split("/")[0]) or {}
+        out.append({"c": r["code"], "region": r["region"], "sd": r["sd"], "v": r["v"],
+                    "dn": round(r["d_nearest"], 1), "nt": r["nt"], "nl": r["nl"],
+                    "town": t.get("town_name", ""), "county": t.get("county", ""),
+                    "lon": round(r["lon"], 5), "lat": round(r["lat"], 5)})
     (SA_OUT / "top_desert.json").write_text(json.dumps(out, separators=(",", ":")))
     print(f"  wrote site/sa/top_desert.json (top {len(out)})")
 

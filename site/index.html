@@ -328,6 +328,7 @@
   .gauge .pin{ position:absolute; top:50%; width:13px; height:13px; border-radius:50%; background:#fff; border:2.5px solid var(--ink); transform:translate(-50%,-50%); box-shadow:0 1px 4px rgba(0,0,0,.3); }
   .gauge-ends{ display:flex; justify-content:space-between; font-size:10.5px; color:var(--faint); }
   .mbreak-h{ font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--faint); margin:17px 0 9px; }
+  .mb-note{ font-size:12px; color:var(--muted); line-height:1.5; margin-top:15px; padding-top:12px; border-top:1px solid var(--line-soft); }
   .mbreak{ display:flex; flex-direction:column; gap:8px; }
   .mb-row{ display:grid; grid-template-columns:78px 1fr 24px; align-items:center; gap:9px; font-size:12px; }
   .mb-row .mb-l{ color:var(--muted); }
@@ -1211,15 +1212,21 @@ function openDetail(name){
       <div class="gauge" style="background:linear-gradient(90deg,var(--v0),var(--v2),var(--v5))"><span class="pin" style="left:${score}%"></span></div>
       <div class="gauge-ends"><span>0 · lower need</span><span>100 · greater need</span></div>`;
   }
-  if(d.vP05!=null){
+  if(d.vP05!=null && MEAS==="v"){
     const tot = (SA_META && SA_META.regions[name]) ? SA_META.regions[name].count : null;
     html+=hotspotBadge(d.vTop10,tot);
   }
-  // only the four themes that actually build the Vulnerability score — not the headline or the desert fusion
-  html+=`<div class="mbreak-h">What drives the need here</div><div class="mbreak">`;
-  ["cl","st","dm","is"].forEach(k=>{ const s=Math.round(d[MEAN_KEY[k]]); const c=VIRIDIS[Math.max(0,uniClass(d[MEAN_KEY[k]],SA_META.breaks[k]))];
-    html+=`<div class="mb-row${k===MEAS?' on':''}"><span class="mb-l">${MEASURES[k].label}</span><span class="mb-bar"><i style="width:${s}%;background:${c}"></i></span><span class="mb-v">${s}</span></div>`; });
-  html+=`</div>
+  // each lens explains only itself: the four theme bars appear where the themes actually build
+  // the score on screen (Vulnerability + the drivers); the fused lenses state their formula instead
+  if(["v","cl","st","dm","is"].includes(MEAS)){
+    html+=`<div class="mbreak-h">What drives the need here</div><div class="mbreak">`;
+    ["cl","st","dm","is"].forEach(k=>{ const s=Math.round(d[MEAN_KEY[k]]); const c=VIRIDIS[Math.max(0,uniClass(d[MEAN_KEY[k]],SA_META.breaks[k]))];
+      html+=`<div class="mb-row${k===MEAS?' on':''}"><span class="mb-l">${MEASURES[k].label}</span><span class="mb-bar"><i style="width:${s}%;background:${c}"></i></span><span class="mb-v">${s}</span></div>`; });
+    html+=`</div>`;
+  } else if(MEASURES[MEAS]){
+    html+=`<div class="mb-note">${MEASURES[MEAS].sub}</div>`;
+  }
+  html+=`
     <button class="zoom-btn" id="zoomBtn">← Back to all regions</button>
     <button class="gap-link" id="gapLink">View this region's market gap (HSE areas) →</button>`;
   document.getElementById("detailBody").innerHTML=html;
@@ -1279,13 +1286,14 @@ async function ensureTop(){ if(TOP) return TOP; TOP=await(await fetch("sa/top_de
 function buildDesertTable(){
   const rows=TOP.slice(0,12).map((r,i)=>{
     const ap=r.nl&&r.nl!=="address"?` <span class="ap">~${r.nl}</span>`:"";
+    const place=r.town||`SA ${(""+r.c).split("/")[0]}`;
     return `<tr class="r" role="button" tabindex="0" data-region="${r.region}" data-lat="${r.lat}" data-lon="${r.lon}">`
-      +`<td>${i+1}</td><td>SA ${(""+r.c).split("/")[0]}<br><span class="ap">${r.region}</span></td>`
+      +`<td>${i+1}</td><td><b>${place}</b><br><span class="ap">${r.county||rlabel(r.region)}</span></td>`
       +`<td class="di">${r.dn} km<br><span class="ap">${NTLAB[r.nt]||r.nt}${ap}</span></td>`
       +`<td class="sc">${Math.round(r.sd)}</td></tr>`;
   }).join("");
   document.getElementById("desertTable").innerHTML=
-    `<tr><th>#</th><th>Area (SA code)</th><th>Nearest support</th><th>Desert score</th></tr>${rows}`;
+    `<tr><th>#</th><th>Nearest town</th><th>Nearest support</th><th>Desert score</th></tr>${rows}`;
   document.querySelectorAll("#desertTable tr.r").forEach(tr=>{
     const go=async ()=>{ const rg=tr.dataset.region; selected=rg; if(layer) layer.setStyle(styleFor);
       await loadSA(rg);
@@ -1300,7 +1308,7 @@ function toggleTop(on){
     if(!topLayer){
       topLayer=L.layerGroup(TOP.map(r=>
         L.circleMarker([r.lat,r.lon],{ pane:"desert", renderer:desertRenderer, radius:5, fillColor:"#440154", color:"#fff", weight:1.4, fillOpacity:.92 })
-          .bindTooltip(`SA ${(""+r.c).split("/")[0]} · desert ${Math.round(r.sd)} · ${r.dn} km to ${NTLAB[r.nt]||r.nt}`,{className:"tip",direction:"top",opacity:1})
+          .bindTooltip(`<b>${r.town||("SA "+(""+r.c).split("/")[0])}</b> · desert ${Math.round(r.sd)} · ${r.dn} km to ${NTLAB[r.nt]||r.nt}`,{className:"tip",direction:"top",opacity:1})
           .on("click",()=>{ loadSA(r.region).then(()=>map.setView([r.lat,r.lon],11)); })));
     }
     topLayer.addTo(map);
@@ -1482,10 +1490,9 @@ function showTarget(code){
        <div class="ans-rank">Rank #${t.rank} of 20 by market gap</div>
        <h3><b>${shortIHA(t.iha_name)}</b></h3>
        <div class="ans-stats">
-         <span class="ans-stat"><b>${t.market_gap_score}</b>market&nbsp;gap</span>
-         <span class="ans-stat"><b>${Math.round(t.mean_vulnerability)}</b>mean&nbsp;need</span>
-         <span class="ans-stat"><b>${t.provider_count}</b>providers</span>
-         <span class="ans-stat"><b>${t.providers_per_1k_65plus.toFixed(2)}</b>per&nbsp;1,000 aged&nbsp;65+</span>
+         <span class="ans-stat"><b>${t.market_gap_score}</b>market gap<br>need rank − supply rank</span>
+         <span class="ans-stat"><b>${Math.round(t.mean_vulnerability)}</b>need<br>mean score, 0–100</span>
+         <span class="ans-stat"><b>${t.provider_count}</b>supply<br>providers · ${t.providers_per_1k_65plus.toFixed(2)} per 1,000 aged 65+</span>
        </div>
        ${gp.vP05!=null?hotspotBadge(gp.vTop10,gp.nSA,"The worst are listed below."):""}
      </div>
