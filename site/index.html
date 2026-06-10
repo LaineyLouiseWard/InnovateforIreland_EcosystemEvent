@@ -1492,9 +1492,8 @@ function showTarget(code){
        <div class="ans-stats">
          <span class="ans-stat"><b>${t.market_gap_score}</b>market gap<br>need rank − supply rank</span>
          <span class="ans-stat"><b>${Math.round(t.mean_vulnerability)}</b>need<br>mean score, 0–100</span>
-         <span class="ans-stat"><b>${t.provider_count}</b>supply<br>providers · ${t.providers_per_1k_65plus.toFixed(2)} per 1,000 aged 65+</span>
+         <span class="ans-stat"><b>${t.provider_count}</b>supply<br>${t.provider_count? `providers · 1 per ~${(Math.round(1000/t.providers_per_1k_65plus/100)*100).toLocaleString("en-IE")} people aged 65+` : "no approved providers"}</span>
        </div>
-       ${gp.vP05!=null?hotspotBadge(gp.vTop10,gp.nSA,"The worst are listed below."):""}
      </div>
      <div class="ans-th"><span>${thLabel} <button class="ipop" data-ipop="distance" aria-label="How distance is measured">i</button></span><span class="pinkey"><i></i>shown as pins on the map</span></div>
      <div class="twrap"><table class="twn"><tr><th>Town</th><th class="r">Score</th></tr>${rows}</table></div>
