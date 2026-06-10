@@ -549,7 +549,7 @@
         <div class="rank-card">
           <div class="rc-h"><h3>Where severe need concentrates</h3><span>by region</span></div>
           <div id="heroBars"></div>
-          <div class="rc-foot">Bar: the share of a region's small areas in Ireland's most-vulnerable tenth. Colour: the region's average score, matching the map.</div>
+          <div class="rc-foot">The share of each region's small areas in Ireland's most-vulnerable tenth.</div>
           <div class="rc-scale"><i style="background:var(--v0)"></i><i style="background:var(--v1)"></i><i style="background:var(--v2)"></i><i style="background:var(--v3)"></i><i style="background:var(--v4)"></i><i style="background:var(--v5)"></i></div>
           <div class="rc-ends"><span>Lower need</span><span>Greater need</span></div>
         </div>
@@ -931,9 +931,9 @@ function buildHome(){
   const sorted=[...ROWS].sort((a,b)=>share(b)-share(a));
   const hi=share(sorted[0])||1;
   box.innerHTML = sorted.map((d,i)=>{
-    // zero-based proportional length (no contrast stretch); colour stays on the SAME national 0–100
-    // mean-score scale as the map legend, so a colour means the same number everywhere
-    const c=SA_META ? VIRIDIS[uniClass(d.vMean,SA_META.breaks.v)] : VIRIDIS[uniClass(d.vMean,RBREAKS.v.breaks)];
+    // zero-based proportional length (no contrast stretch); colour redundantly encodes the same
+    // share, so the bar needs no second explanation
+    const c=VIRIDIS[Math.min(5,Math.floor(6*share(d)/hi))];
     const dly=(i*0.05+0.35).toFixed(2);
     return `<div class="rrow" style="animation-delay:${dly}s"><span class="rrl">${rlabel(d.region)}</span>`
       +`<span class="rrb"><i style="width:${(100*share(d)/hi).toFixed(0)}%;background:${c};animation-delay:${dly}s"></i></span>`
@@ -1083,7 +1083,7 @@ function saTipFor(p){
   const sc=v=>v==null?'—':Math.round(v);
   const mval = MEAS==="sd" ? `Service desert ${sc(p.sd)}` : MEAS==="rd" ? `Residential gap ${sc(p.rd)}` : `Vulnerability ${sc(p.v)}`;
   let s=`<b>${mval}</b>`;
-  if(MEAS==="v"){ const f=flagCount(p); s+=`<br>${f? `worst quartile on ${f} of 4 themes` : "no theme in the worst quartile"}`; }
+  if(MEAS==="v"){ const f=flagCount(p); s+=`<br>${f? `in Ireland's worst quarter for ${f} of 4 pressures` : "no pressure in Ireland's worst quarter"}`; }
   if(MEAS==="rd"){ if(p.dnn!=null) s+=`<br>${p.dnn} km to nearest nursing home`; }
   else if(p.dn!=null) s+=`<br>${p.dn} km to nearest ${NTLAB[p.nt]||p.nt}`+(p.nl&&p.nl!=="address"?` <span style="opacity:.7">(~${p.nl})</span>`:"");
   return s;
@@ -1214,20 +1214,20 @@ function openDetail(name){
   }
   if(d.vP05!=null){
     const tot = (SA_META && SA_META.regions[name]) ? SA_META.regions[name].count : null;
-    html+=hotspotBadge(d.vTop10,tot);
+    // the non-compensatory companion fact: how much of the region is severe across themes at
+    // once, not just high on the averaged score — "the four pressures below" = the driver bars
+    const fc=saCache[name]; let flagTail="";
+    if(fc&&fc.features.length){
+      const pct=Math.round(100*fc.features.reduce((n,f)=>n+(flagCount(f.properties)>=3?1:0),0)/fc.features.length);
+      flagTail=`${pct}% are in Ireland's worst quarter for three or more of the four pressures below.`;
+    }
+    html+=hotspotBadge(d.vTop10,tot,flagTail);
   }
   // only the four themes that actually build the Vulnerability score — not the headline or the desert fusion
   html+=`<div class="mbreak-h">What drives the need here</div><div class="mbreak">`;
   ["cl","st","dm","is"].forEach(k=>{ const s=Math.round(d[MEAN_KEY[k]]); const c=VIRIDIS[Math.max(0,uniClass(d[MEAN_KEY[k]],SA_META.breaks[k]))];
     html+=`<div class="mb-row${k===MEAS?' on':''}"><span class="mb-l">${MEASURES[k].label}</span><span class="mb-bar"><i style="width:${s}%;background:${c}"></i></span><span class="mb-v">${s}</span></div>`; });
-  html+=`</div>`;
-  // the non-compensatory check: how much of the region is severe across themes, not just high on average
-  const fc=saCache[name];
-  if(fc&&fc.features.length){
-    const n3=fc.features.reduce((n,f)=>n+(flagCount(f.properties)>=3?1:0),0);
-    html+=`<div class="drow"><span class="k">Worst quartile on 3+ of the 4</span><span class="v">${Math.round(100*n3/fc.features.length)}% of areas</span></div>`;
-  }
-  html+=`
+  html+=`</div>
     <button class="zoom-btn" id="zoomBtn">← Back to all regions</button>
     <button class="gap-link" id="gapLink">View this region's market gap (HSE areas) →</button>`;
   document.getElementById("detailBody").innerHTML=html;
