@@ -109,14 +109,15 @@
   .rc-h h3{ font-size:13.5px; font-weight:700; color:var(--ink); }
   .rc-h span{ font-size:11px; color:var(--faint); font-weight:600; }
   #heroBars{ display:flex; flex-direction:column; gap:12px; }
-  .rrow{ display:grid; grid-template-columns:78px 1fr 24px; align-items:center; gap:13px; opacity:0; animation:rise .5s both; }
+  .rrow{ display:grid; grid-template-columns:78px 1fr 44px; align-items:center; gap:13px; opacity:0; animation:rise .5s both; }
   .rrl{ font-size:12.5px; font-weight:600; color:#181a2b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .rrow:hover .rrl, .rrow:focus .rrl{ color:#181a2b; }
   .rrb{ height:10px; border-radius:6px; background:var(--line-soft); overflow:hidden; }
   .rrb i{ display:block; height:100%; border-radius:6px; transform-origin:left; animation:grow-x .85s cubic-bezier(.2,.8,.2,1) both; }
   @keyframes grow-x{ from{ transform:scaleX(.03) } to{ transform:scaleX(1) } }
   .rrv{ text-align:right; font-size:13px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; }
-  .rc-scale{ display:flex; height:8px; border-radius:5px; overflow:hidden; margin-top:20px; }
+  .rc-foot{ font-size:10.5px; color:var(--faint); line-height:1.45; margin-top:14px; }
+  .rc-scale{ display:flex; height:8px; border-radius:5px; overflow:hidden; margin-top:10px; }
   .rc-scale i{ flex:1; }
   .rc-ends{ display:flex; justify-content:space-between; font-size:10.5px; color:var(--faint); margin-top:7px; }
 
@@ -546,8 +547,9 @@
       </div>
       <div class="hero-fig">
         <div class="rank-card">
-          <div class="rc-h"><h3>Carer vulnerability by region</h3><span>avg score · 0–100</span></div>
+          <div class="rc-h"><h3>Where severe need concentrates</h3><span>by region</span></div>
           <div id="heroBars"></div>
+          <div class="rc-foot">Bar: the share of a region's small areas in Ireland's most-vulnerable tenth. Colour: the region's average score, matching the map.</div>
           <div class="rc-scale"><i style="background:var(--v0)"></i><i style="background:var(--v1)"></i><i style="background:var(--v2)"></i><i style="background:var(--v3)"></i><i style="background:var(--v4)"></i><i style="background:var(--v5)"></i></div>
           <div class="rc-ends"><span>Lower need</span><span>Greater need</span></div>
         </div>
@@ -726,6 +728,11 @@ const BIVS = {
 function isBiv(k){ return k in BIVS; }
 function lens(k){ return MEASURES[k] || BIVS[k]; }
 function terClass(v,t){ return v==null?-1 : v<t[0]?0 : v<t[1]?1 : 2; }
+// non-compensatory flag count (CDC SVI-style): theme scores are national percentile ranks,
+// so "worst quartile" is simply score ≥ 75. An average can't tell "moderate on all four themes"
+// from "extreme on one"; counting flags can.
+const FLAG_THEMES=["cl","st","dm","is"];
+function flagCount(p){ return FLAG_THEMES.reduce((n,k)=>n+(p[k]!=null&&p[k]>=75?1:0),0); }
 function hotspotBadge(top,total,cta){
   if(!top) return "";
   const tail = cta ? ` ${cta}` : "";
@@ -918,16 +925,19 @@ document.addEventListener("click",e=>{
 // ================= home =================
 function buildHome(){
   const box=document.getElementById("heroBars");
-  const sorted=[...ROWS].sort((a,b)=>b.vMean-a.vMean);
-  const lo=RBREAKS.v.min, hi=RBREAKS.v.max;
+  // bar = the share of each region's small areas in Ireland's most-vulnerable tenth: it separates the
+  // regions honestly (means bunch 42–59), and severe-need concentration is the claim the headline makes
+  const share=d=>{ const n=SA_META&&SA_META.regions[d.region]&&SA_META.regions[d.region].count; return n?100*d.vTop10/n:0; };
+  const sorted=[...ROWS].sort((a,b)=>share(b)-share(a));
+  const hi=share(sorted[0])||1;
   box.innerHTML = sorted.map((d,i)=>{
-    const t=Math.max(.06,(d.vMean-lo)/((hi-lo)||1));   // bar length still contrast-stretched so the ranking reads
-    // colour on the SAME national 0–100 scale as the map legend, so a colour means the same number everywhere
+    // zero-based proportional length (no contrast stretch); colour stays on the SAME national 0–100
+    // mean-score scale as the map legend, so a colour means the same number everywhere
     const c=SA_META ? VIRIDIS[uniClass(d.vMean,SA_META.breaks.v)] : VIRIDIS[uniClass(d.vMean,RBREAKS.v.breaks)];
     const dly=(i*0.05+0.35).toFixed(2);
     return `<div class="rrow" style="animation-delay:${dly}s"><span class="rrl">${rlabel(d.region)}</span>`
-      +`<span class="rrb"><i style="width:${(t*100).toFixed(0)}%;background:${c};animation-delay:${dly}s"></i></span>`
-      +`<span class="rrv">${Math.round(d.vMean)}</span></div>`;
+      +`<span class="rrb"><i style="width:${(100*share(d)/hi).toFixed(0)}%;background:${c};animation-delay:${dly}s"></i></span>`
+      +`<span class="rrv">${share(d).toFixed(1)}%</span></div>`;
   }).join("");
   const carers=ROWS.reduce((s,d)=>s+d.carers2022,0);
   const carersRound=(Math.round(carers/10000)*10000).toLocaleString("en-IE");   // ~300,000
@@ -1073,6 +1083,7 @@ function saTipFor(p){
   const sc=v=>v==null?'—':Math.round(v);
   const mval = MEAS==="sd" ? `Service desert ${sc(p.sd)}` : MEAS==="rd" ? `Residential gap ${sc(p.rd)}` : `Vulnerability ${sc(p.v)}`;
   let s=`<b>${mval}</b>`;
+  if(MEAS==="v"){ const f=flagCount(p); s+=`<br>${f? `worst quartile on ${f} of 4 themes` : "no theme in the worst quartile"}`; }
   if(MEAS==="rd"){ if(p.dnn!=null) s+=`<br>${p.dnn} km to nearest nursing home`; }
   else if(p.dn!=null) s+=`<br>${p.dn} km to nearest ${NTLAB[p.nt]||p.nt}`+(p.nl&&p.nl!=="address"?` <span style="opacity:.7">(~${p.nl})</span>`:"");
   return s;
@@ -1209,7 +1220,14 @@ function openDetail(name){
   html+=`<div class="mbreak-h">What drives the need here</div><div class="mbreak">`;
   ["cl","st","dm","is"].forEach(k=>{ const s=Math.round(d[MEAN_KEY[k]]); const c=VIRIDIS[Math.max(0,uniClass(d[MEAN_KEY[k]],SA_META.breaks[k]))];
     html+=`<div class="mb-row${k===MEAS?' on':''}"><span class="mb-l">${MEASURES[k].label}</span><span class="mb-bar"><i style="width:${s}%;background:${c}"></i></span><span class="mb-v">${s}</span></div>`; });
-  html+=`</div>
+  html+=`</div>`;
+  // the non-compensatory check: how much of the region is severe across themes, not just high on average
+  const fc=saCache[name];
+  if(fc&&fc.features.length){
+    const n3=fc.features.reduce((n,f)=>n+(flagCount(f.properties)>=3?1:0),0);
+    html+=`<div class="drow"><span class="k">Worst quartile on 3+ of the 4</span><span class="v">${Math.round(100*n3/fc.features.length)}% of areas</span></div>`;
+  }
+  html+=`
     <button class="zoom-btn" id="zoomBtn">← Back to all regions</button>
     <button class="gap-link" id="gapLink">View this region's market gap (HSE areas) →</button>`;
   document.getElementById("detailBody").innerHTML=html;
