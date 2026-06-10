@@ -906,7 +906,7 @@ document.getElementById("retryBtn").addEventListener("click",()=>location.reload
 // in-place info popovers (quick definition + link to the methods page)
 const IPOP={
   score:`<b>Percentile ranks, not percentages.</b> A score of 78 means an area is more in need than 78% of areas in Ireland — not that 78% of people are carers. Runs 0–100, where 100 = greatest need. The regional view shows each region's average; zoom in for each small area's own score. <a href="methods.html#score" target="_blank" rel="noopener">Full methods →</a>`,
-  marketgap:`<b>Need rank minus supply rank</b> across the 20 HSE areas. The ranking is reliable; the exact number is indicative. <a href="methods.html#hse" target="_blank" rel="noopener">Full methods →</a>`,
+  marketgap:`<b>Need rank minus supply rank</b> across the 20 HSE areas. The order is more robust than the exact number. <a href="methods.html#hse" target="_blank" rel="noopener">Full methods →</a>`,
   distance:`<b>Distance is to the nearest in-home support office</b>, a proxy for access, not a service boundary. A <b>~town</b> or <b>~county</b> tag means the office location is approximate. <a href="methods.html#markers" target="_blank" rel="noopener">Full methods →</a>`,
 };
 const ipopPop=document.getElementById("ipopPop");
@@ -1409,7 +1409,7 @@ function buildGapLegend(){
     rows+=`<div class="lrow"><span class="sw" style="background:${GAP_COLORS[i]}"></span><span class="rng">${Math.round(edges[i])} to ${Math.round(edges[i+1])}</span></div>`;
   document.getElementById("gapLegendBox").innerHTML=
     `<h4>Market Gap score<button class="ipop" data-ipop="marketgap" aria-label="What does the market gap score mean?">i</button></h4><div class="sub"><b style="color:#2c7bb6">Blue</b> = better supplied · <b style="color:#b3531d">orange</b> = bigger gap · centred at 0</div>${rows}
-     <div class="note-region">The <b>ranking</b> is reliable; the exact score is indicative: rely on position (1st, 2nd…), not the gap magnitude.</div>
+     <div class="note-region">The <b>order</b> is more robust than the exact score: rely on position (1st, 2nd…), not the gap magnitude.</div>
      <div class="foot">Need percentile rank minus supply percentile rank · theoretical range −100 to +100.</div>`;
 }
 function buildGapList(){

@@ -34,7 +34,9 @@
   .tnum{ font-variant-numeric:tabular-nums; }
 
   /* ---------------- NAV (mirrors index.html) ---------------- */
-  nav{ position:sticky; top:0; z-index:1000; height:var(--nav-h); display:flex; align-items:center; gap:8px;
+  /* scoped to the site bar only: the in-page contents list is also a <nav> (.toc)
+     and must not inherit the sticky white bar styling */
+  body > nav{ position:sticky; top:0; z-index:1000; height:var(--nav-h); display:flex; align-items:center; gap:8px;
     padding:0 clamp(16px,4vw,40px); background:rgba(255,255,255,.95); backdrop-filter:saturate(1.4) blur(10px);
     border-bottom:1px solid var(--line); box-shadow:0 1px 8px rgba(24,26,43,.06); }
   .brand{ display:flex; align-items:center; gap:10px; margin-right:auto; }
@@ -194,9 +196,9 @@
       <nav class="toc" aria-label="On this page">
         <a href="#score">The Vulnerability score</a>
         <a href="#themes">The four themes</a>
-        <a href="#targeting">Targeting measures</a>
+        <a href="#targeting">Where to act</a>
         <a href="#hse">HSE market gap</a>
-        <a href="#markers">Care-service markers</a>
+        <a href="#markers">The dots on the map</a>
         <a href="#sources">Data sources</a>
         <a href="#limits">Limitations</a>
       </nav>
@@ -210,7 +212,7 @@
       <h2 class="sec-h">What the Vulnerability score is</h2>
       <p class="lead-line">Every one of Ireland's 18,919 Census small areas gets a single Vulnerability
         score from 0 to 100, where 100 is the greatest need.</p>
-      <p>The score folds together four themes: <b>Carer share</b>, <b>Deprivation</b>, <b>Demand</b> and
+      <p>The score combines four themes: <b>Carer share</b>, <b>Deprivation</b>, <b>Demand</b> and
         <b>Hard to reach</b>. Each input is percentile-ranked across all small areas, the inputs are averaged
         within each theme, and the four themes are averaged into the final score. This follows the
         percentile-rank method used by the CDC/ATSDR Social Vulnerability Index and the OECD Handbook
@@ -218,10 +220,10 @@
         rate) become comparable. The four themes count equally: equal weights, chosen deliberately,
         rather than bespoke weights we would then have to defend.</p>
       <p><b>An average can hide what drives it.</b> A score of 70 can mean moderately stretched on every
-        front, or extreme on one. So alongside the score, each area carries a <b>flag count</b>, the SVI's
-        non-compensatory check: how many of its four themes sit in the worst national quartile. The map
-        reports it in each area's tooltip. An area flagged on three or four themes is severe
-        across the board; no single outlier theme can produce that.</p>
+        front, or extreme on one. So each area also carries a <b>flag count</b> — how many of its four
+        themes sit in the worst quarter of Irish areas — shown in the area's tooltip on the map. Three or
+        four flags means severe across the board; one outlier theme cannot produce that. (This is the
+        SVI's flag mechanism, the standard companion to an averaged score.)</p>
       <div class="callout">
         <b>Scores are percentile ranks, never percentages.</b> A score of 78 means an area is more
         vulnerable than 78 percent of areas in Ireland. It does not mean 78 percent of people. Ranks
@@ -317,9 +319,8 @@
       <p>Subtracting ranks keeps the score bounded and comparable. We rejected dividing need by supply,
         which exploded for the lowest-supply area and gave a misleading result.</p>
       <div class="callout amber">
-        <b>The ranking is reliable; the exact score is indicative.</b> Lead with where an area sits in
-        the order, not its precise number. The choropleth uses quantile classes so it stays robust to
-        outliers.
+        <b>The order is more robust than the exact score.</b> Lead with where an area sits (1st, 2nd…),
+        not its precise number. The choropleth uses quantile classes so it stays robust to outliers.
       </div>
     </div>
   </section>
@@ -428,7 +429,7 @@
         </div>
         <div class="lim">
           <p><b>Averages hide spread.</b> A region or HSE-area colour is the average of its small areas,
-            so a calm-looking area can still hide pockets of severe need. Zoom in to see the truth.</p>
+            so a calm-looking area can still hide pockets of severe need. Zoom in before concluding.</p>
         </div>
         <div class="lim">
           <p><b>It is a snapshot.</b> Built on Census 2022 and provider registers as of mid-2026.
