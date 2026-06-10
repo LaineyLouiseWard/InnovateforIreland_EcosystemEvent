@@ -25,10 +25,21 @@ themes are averaged into one score.
 | Isolation | no-car households (plus distance-to-support, added in Plan 3) | CSO Census 2022 |
 
 Grounded in the CDC/ATSDR Social Vulnerability Index (the percentile-rank-and-sum method)
-and the OECD *Handbook on Constructing Composite Indicators*. Percentile ranking avoids
-inventing weights and makes unlike variables (a %, a deprivation score, a rate) comparable.
+and the OECD *Handbook on Constructing Composite Indicators*. Percentile ranking makes
+unlike variables (a %, a deprivation score, a rate) comparable; the four themes count
+equally — equal weights chosen deliberately, not the absence of a weighting decision.
 We dropped the 43+hrs-caring variable because it does not exist at SA level in the census,
 rather than fabricate it.
+
+**Flag count (non-compensatory check).** Averaging is compensatory: extreme deprivation can
+be diluted by a mild carer share. Following the SVI's flag mechanism, each SA also carries a
+flag count — how many of its four themes sit in the worst national quartile (theme score
+≥ 75). Computed client-side in `site/index.html` (`flagCount`), shown in SA tooltips and in
+each region's detail panel as the share of areas flagged on 3+ themes. The original project
+brainstorm proposed quartile-overlap as the *primary* method; it survives here as the
+robustness layer, with the composite as the headline (the composite is what the desert and
+market-gap measures need as a continuous input). `scripts/check_robustness.py` reports theme
+correlations and the composite-vs-flag-count rank agreement.
 
 ## 2. Supply: three service-point layers
 

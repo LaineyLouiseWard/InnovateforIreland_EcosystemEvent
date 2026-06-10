@@ -50,6 +50,7 @@ behind each layer is in [`../docs/methods/METHODOLOGY.md`](../docs/methods/METHO
 | `build_town_names.py` | Small-Area code → nearest settlement name |
 | `build_target_drilldown.py` | the capstone "target your supply here" JSON |
 | `bake_site_data.py` | the NUTS3 "Now" base layer for the site |
+| `check_robustness.py` | theme correlations + composite-vs-flag-count rank agreement (reads `site/sa/`, no fetch needed) |
 
 A typical full rebuild runs the fetch scripts, then the build scripts in the order above. Each is
 re-runnable; the slow geocoding pass caches to `data/raw/` so it only happens once.
