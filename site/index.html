@@ -843,8 +843,10 @@ function applyLevelUI(){
   document.querySelectorAll("#geoseg .geo").forEach(b=> b.setAttribute("aria-selected", String(b.dataset.level===LEVEL)));
   const locBtn=document.querySelector('#geoseg .geo[data-level="loc"]');
   if(locBtn){ const sm=locBtn.querySelector("small"); if(sm) sm.textContent=rlabel(selected)||"small areas"; }
-  document.getElementById("msel").style.display = LEVEL==="hse" ? "none" : "";
+  // the Showing control stays visible at every level — at HSE it reads "Market gap" and
+  // explains itself, instead of silently disappearing while the map changes measure
   document.getElementById("combo").style.display = LEVEL==="hse" ? "none" : "";
+  reflectMeasure();
   updateTitle();
   updateMapCue();
 }
@@ -952,15 +954,21 @@ function buildHome(){
 // ================= measure selector =================
 const mselBtn=document.getElementById("mselBtn"), mselPop=document.getElementById("mselPop");
 function optHTML(k){
-  const m=lens(k), on=k===MEAS, dotc = isBiv(k)?BIV[2][2]:(k==="v"?VIRIDIS[5]:VIRIDIS[4]);
+  const m=lens(k), on=LEVEL!=="hse"&&k===MEAS, dotc = isBiv(k)?BIV[2][2]:(k==="v"?VIRIDIS[5]:VIRIDIS[4]);
   return `<div class="msel-opt${on?' on':''}" data-k="${k}" role="option" tabindex="0" aria-selected="${on}">
     <span class="msel-odot" style="background:${dotc}"></span>
     <span class="msel-otxt"><b>${m.label}</b><span>${m.gloss}</span></span>
     ${on?'<span class="msel-tick">✓</span>':''}</div>`;
 }
 function buildMeasureSelector(){
-  const driversOpen = ["cl","st","dm","is"].includes(MEAS);
-  let html = `<div class="msel-grp">Headline score</div>${optHTML("v")}`
+  const hse = LEVEL==="hse";
+  const driversOpen = !hse && ["cl","st","dm","is"].includes(MEAS);
+  let html = "";
+  if(hse) html += `<div class="msel-grp">At this level</div>
+    <div class="msel-opt on" role="option" aria-selected="true"><span class="msel-odot" style="background:#b3531d"></span><span class="msel-otxt"><b>Market gap</b><span>Need rank − supply rank: the measure the 20 HSE areas are mapped by.</span></span><span class="msel-tick">✓</span></div>
+    <div class="msel-grp">Mapped at Regional / Local — picking one switches you back</div>`;
+  else html += `<div class="msel-grp">Headline score</div>`;
+  html += `${optHTML("v")}`
     + `<div class="msel-grp">Where to target (need + supply)</div>` + ["sd","rd","opp"].map(optHTML).join("")
     + `<button type="button" class="msel-toggle" id="mselDrivers" aria-expanded="${driversOpen}">What builds the score <span class="msel-chev">▾</span></button>`
     + `<div class="msel-drivers${driversOpen?" open":""}" id="mselDriversBox">` + ["cl","st","dm","is"].map(optHTML).join("") + `</div>`;
@@ -974,6 +982,11 @@ function buildMeasureSelector(){
   });
 }
 function reflectMeasure(){
+  if(LEVEL==="hse"){
+    document.getElementById("mselCur").textContent="Market gap";
+    document.getElementById("mselDot").style.background="#b3531d";
+    buildMeasureSelector(); updateTitle(); return;
+  }
   const m=lens(MEAS);
   document.getElementById("mselCur").textContent=m.label;
   document.getElementById("mselDot").style.background= isBiv(MEAS)?BIV[2][2] : (MEAS==="v"?VIRIDIS[5]:VIRIDIS[4]);
@@ -989,6 +1002,10 @@ document.addEventListener("click",e=>{ if(!document.getElementById("msel").conta
 function setMeasure(k){
   if(!lens(k)) return;
   MEAS=k;
+  if(LEVEL==="hse"){   // these measures are mapped at region / small-area level — hop back, say so
+    setLevel("reg");
+    flashHint(`${lens(k).label} is mapped at the Regional and Local levels — switched back.`);
+  }
   reflectMeasure();
   if(layer) layer.setStyle(styleFor);
   if(saMode && saLayer){ saLayer.setStyle(saStyleFn); buildSALegend(); }
@@ -1372,7 +1389,9 @@ const shortIHA = s => s.replace(/^HSE /,"").replace(/ IHA$/,"");
 const GAP_COLORS = ["#2c7bb6","#abd9e9","#fdd49e","#f6993f","#b3531d"];
 function gapColour(v){ const b=gapMeta.breaks; let i=0; while(i<b.length && v>b[i]) i++; return GAP_COLORS[i]; }
 function gapStyle(f){ const sel=gapSel===f.properties.code;
-  return { fillColor:gapColour(f.properties.gap), fillOpacity: gapSel&&!sel?0.45:0.88,
+  // fills stay at full strength so the map always matches the legend swatches;
+  // selection reads from the dark outline (and the zoom), not from washing everything else out
+  return { fillColor:gapColour(f.properties.gap), fillOpacity:0.95,
            color: sel?"#181a2b":"#fff", weight: sel?2.6:1 }; }
 function gapTip(p){
   return `<b>${shortIHA(p.name)}</b> · rank #${p.rank} of 20<br><span style="opacity:.7">click to target</span>`;
