@@ -277,6 +277,9 @@
     100%  { opacity:0; }
   }
   @media (prefers-reduced-motion: reduce){ .map-cue{ display:none; } }
+  /* the home-page copy of the cue, anchored over the "Open the map" button */
+  .cta-row{ position:relative; }
+  .home-cue{ left:96px; top:22px; z-index:5; }
 
   .stage{ position:relative; flex:1 1 auto; min-height:0; overflow:hidden; }
   #map{ position:absolute; inset:0; background:var(--sea); }
@@ -562,6 +565,11 @@
           <button class="btn btn-primary" data-view="map"><svg class="btn-pin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.9-3.1-7-7-7z" fill="#e23744" stroke="#fff" stroke-width="1.4"/><circle cx="12" cy="9" r="2.5" fill="#fff"/></svg>Open the map
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
+          <!-- same tap cue as the map's: nudges the first-time visitor toward the button, once -->
+          <div class="map-cue home-cue" id="homeCue" aria-hidden="true" hidden>
+            <span class="cue-ring"></span>
+            <span class="cue"><svg viewBox="0 0 24 24"><path d="M5 2.2 5 18.5 9.1 14.4 11.9 20.4 14.3 19.4 11.5 13.5 17 13Z" fill="#fff" stroke="#181a2b" stroke-width="1.3" stroke-linejoin="round"/></svg></span>
+          </div>
         </div>
         <div class="scrollcue">The numbers below <span class="chev">↓</span></div>
       </div>
@@ -823,7 +831,8 @@ function show(name){
   if(name==="gap") name="map";              // "gap" is now the HSE level of the map view, not its own view
   if(!views[name]) name="home";
   for(const k in views){ const on=k===name; views[k].classList.toggle("active",on); views[k].setAttribute("aria-hidden",String(!on)); tabs[k].setAttribute("aria-selected",String(on)); }
-  if(name==="map") ensureMap();
+  if(name==="map"){ ensureMap(); dismissHomeCue(); }   // they found the map; the home cue's job is done
+  else if(name==="home") updateHomeCue();
   // home uses no fragment: "#home" collides with <main id="home"> and the browser scroll-jumps it under the nav
   if(name==="map") setHash(mapHash());
   else if(location.hash) history.replaceState(null,"",location.pathname+location.search);
@@ -884,6 +893,22 @@ function updateMapCue(){
   const show = LEVEL==="reg" && !saMode && !cueDone && !mqReduce.matches;
   el.hidden=!show;
   if(show && !cueTimer) cueTimer=setTimeout(dismissMapCue,12000);   // never loop forever
+}
+
+// the home-page copy of the cue, over the "Open the map" button — same manners:
+// once per session, gone the moment they head for the map, off under reduced motion
+let homeCueDone=false, homeCueTimer=null;
+try{ homeCueDone = sessionStorage.getItem("homeCueDone")==="1"; }catch(e){}
+function dismissHomeCue(){
+  homeCueDone=true; try{ sessionStorage.setItem("homeCueDone","1"); }catch(e){}
+  if(homeCueTimer){ clearTimeout(homeCueTimer); homeCueTimer=null; }
+  const el=document.getElementById("homeCue"); if(el) el.hidden=true;
+}
+function updateHomeCue(){
+  const el=document.getElementById("homeCue"); if(!el) return;
+  const show = !homeCueDone && !mqReduce.matches;
+  el.hidden=!show;
+  if(show && !homeCueTimer) homeCueTimer=setTimeout(dismissHomeCue,12000);
 }
 
 let hintTimer=null;
