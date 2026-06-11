@@ -325,8 +325,9 @@
         also rolls everything up to those 20 areas. For each, we take the population-weighted average of
         small-area need, count the approved providers serving the area, and subtract the supply rank from
         the need rank. A higher score means a wider gap between need and provision.</p>
-      <p>Subtracting ranks keeps the score bounded and comparable. We rejected dividing need by supply,
-        which exploded for the lowest-supply area and gave a misleading result.</p>
+      <p>Subtracting ranks keeps the score bounded and symmetric: it runs from −100 to +100, where
+        zero means an area's supply sits at the same rank as its need, and a negative score means
+        the area is better supplied than its need would predict.</p>
       <div class="callout amber">
         <b>The order is more robust than the exact score.</b> Lead with where an area sits (1st, 2nd…),
         not its precise number. The choropleth uses quantile classes so it stays robust to outliers.
