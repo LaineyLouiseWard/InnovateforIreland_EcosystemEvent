@@ -1104,6 +1104,7 @@ async function loadSA(name){
     map.fitBounds(saLayer.getBounds(),{padding:[20,20]});
     saMode=true;
     if(layer)layer.setStyle(f=>({...styleFor(f),fillOpacity:.1,weight:.5,color:'#bbb'}));
+    muteRegionPaths(name);
     buildSALegend(); applyLevelUI();
   }finally{document.getElementById('loadingSA').classList.remove('on');}
 }
@@ -1124,6 +1125,7 @@ async function loadAllSA(){
     }).addTo(map);
     saMode=true; selected=null; LEVEL="loc";
     if(layer) layer.setStyle(f=>({...styleFor(f),fillOpacity:0,weight:.6,color:'#c4c8d6'}));
+    muteRegionPaths(null);   // every region is covered by its small areas in the national view
     map.fitBounds(layer.getBounds(),{padding:[20,20]});
     closeDetail(); buildSALegend(); applyLevelUI();
   }catch(e){ showLoadError(); throw e; }
@@ -1134,11 +1136,28 @@ function exitSA(){
   if(saLayer){map.removeLayer(saLayer);saLayer=null;}
   saMode=false;
   if(layer)layer.setStyle(styleFor);
+  unmuteRegionPaths();
   buildLegend(); applyLevelUI();
 }
 
 // the geography toggle replaces the old breadcrumb; keep this name as the level-UI sync hook.
 function updateBreadcrumb(){ applyLevelUI(); }
+
+// the region SVG paths render above the small-area canvas, so in SA mode a covering region path
+// would swallow every hover/click — the SA tooltips (the point of zooming in) never fire and the
+// region tooltip falsely offers "click to zoom in". Mute the covered paths; neighbours stay clickable.
+function muteRegionPaths(coveredName){
+  if(!layer) return;
+  layer.eachLayer(l=>{
+    const el=l.getElement(); if(!el) return;
+    const covered = coveredName==null ? true : l.feature.properties.region===coveredName;
+    el.style.pointerEvents = covered ? "none" : "";
+  });
+}
+function unmuteRegionPaths(){
+  if(!layer) return;
+  layer.eachLayer(l=>{ const el=l.getElement(); if(el) el.style.pointerEvents=""; });
+}
 
 // ================= map =================
 let map, layer, selected=null, desertRenderer;
