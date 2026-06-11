@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Carer Vulnerability Map of Ireland</title>
-<meta name="description" content="Where unpaid carers in Ireland are most at risk: a small-area Vulnerability score from Census 2022, drillable from region to neighbourhood to operator market gap.">
+<meta name="description" content="Where unpaid carers in Ireland are most at risk: neighbourhood-level need from Census 2022, and where home support has not kept up, for the planners and providers deciding where help goes next.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -544,9 +544,9 @@
         <div class="eyebrow">Interactive map · Republic of Ireland</div>
         <h1>Where Ireland's <span class="hl">unpaid carers</span> are most at risk.</h1>
         <p class="lede">Almost 300,000 people in Ireland provide unpaid care, often while older, poorer or more
-          isolated themselves. We fold four need signals (<a href="https://www.cso.ie/en/census/census2022/" target="_blank" rel="noopener">CSO&nbsp;Census&nbsp;2022</a> and <a href="https://www.pobal.ie/pobal-hp-deprivation-index/" target="_blank" rel="noopener">Pobal&nbsp;deprivation&nbsp;data</a>) into
-          a single <b>Vulnerability</b> score for every one of Ireland's 18,900 small areas, readable at three
-          levels: region, neighbourhood, and the 20 HSE areas that care providers plan around.</p>
+          isolated themselves. This map shows where those pressures pile up, for the charities, HSE planners
+          and home-care providers deciding where support goes next: a <b>Vulnerability</b> score for every
+          neighbourhood in Ireland, built on <a href="https://www.cso.ie/en/census/census2022/" target="_blank" rel="noopener">CSO&nbsp;Census&nbsp;2022</a> and <a href="https://www.pobal.ie/pobal-hp-deprivation-index/" target="_blank" rel="noopener">Pobal&nbsp;deprivation&nbsp;data</a>.</p>
         <div class="cta-row">
           <button class="btn btn-primary" data-view="map"><svg class="btn-pin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.9-3.1-7-7-7z" fill="#e23744" stroke="#fff" stroke-width="1.4"/><circle cx="12" cy="9" r="2.5" fill="#fff"/></svg>Open the map
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -580,7 +580,7 @@
         <div><div class="step">2</div><h3>Local</h3>
           <p>Click any region to drop into its Census small areas and see the spread an average hides.</p></div>
         <div><div class="step">3</div><h3>HSE areas</h3>
-          <p>Switch to the 20 HSE areas, where need outstrips home-support supply, ranked for care providers.</p></div>
+          <p>Switch to the 20 HSE areas, ranked by the gap between need and home-support supply — the view providers plan around.</p></div>
       </section>
     </div>
   </div>
@@ -656,7 +656,7 @@
     <aside class="gap-panel">
       <header id="gapHead">
         <h3>20 HSE areas, ranked by market gap</h3>
-        <p>Need averaged across each of the <b>20 HSE areas</b> where home-support providers are licensed to operate, minus their supply. Higher score = bigger gap between need and provision. <b>Click an area to target it.</b></p>
+        <p>Each area's <b>need rank minus its supply rank</b>, across the 20 HSE areas where home-support providers are licensed to operate. Higher score = need further ahead of provision. <b>Click an area to target it.</b></p>
         <button class="btn-sm" id="gapCsv" style="margin-top:11px">
           <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Download all 20 (CSV)</button>
@@ -1055,7 +1055,8 @@ function buildSALegend(){
   let rows='';
   for(let i=VIRIDIS.length-1;i>=0;i--)
     rows+=`<div class="lrow"><span class="sw" style="background:${VIRIDIS[i]}"></span><span class="rng">${edges[i].toFixed(0)}–${edges[i+1].toFixed(0)}</span></div>`;
-  const label=(SA_META.measures&&SA_META.measures[field])||field;
+  // UI labels win over the baked file's internal names ("Care load") so the legend always matches the Showing menu
+  const label=(MEASURES[field]&&MEASURES[field].label)||(SA_META.measures&&SA_META.measures[field])||field;
   document.getElementById('legendBox').innerHTML=
     `<h4>${label}<button class="ipop" data-ipop="score" aria-label="What does the score mean?">i</button></h4>${rows}`;
 }
