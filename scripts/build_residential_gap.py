@@ -70,7 +70,7 @@ def main():
     for region, fc in fcs.items():
         (SITE / files[region]).write_text(json.dumps(fc, separators=(",", ":")))
 
-    meta.setdefault("measures", {})["rd"] = "Residential gap"
+    meta.setdefault("measures", {})["rd"] = "Nursing-home gap"
     meta["breaks"]["rd"] = quantile_breaks([rd for _, rd in all_rd if rd is not None])
     (SA / "_meta.json").write_text(json.dumps(meta, indent=1))
 

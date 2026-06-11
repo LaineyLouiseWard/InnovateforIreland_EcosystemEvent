@@ -45,8 +45,8 @@ A **Geography toggle** sets how the country is divided:
 
 A separate **Showing lens** sets what the colour means: the **Vulnerability** headline (a
 0-100 percentile-rank composite of carer load, deprivation, age and disability demand, and
-isolation), each theme on its own, a **Need × Supply** bivariate, and a **Service desert**
-lens (vulnerability weighted by distance to the nearest support). On top of any lens, a
+isolation), each theme on its own, a **Need vs support** bivariate, and a **Support gap**
+lens (a service desert: vulnerability weighted by distance to the nearest support). On top of any lens, a
 **Care services** overlay plots the real supply points: home-care agencies, family-carer
 centres, and nursing homes.
 
@@ -83,7 +83,7 @@ python3 -m http.server --directory site
 ```
 
 The scoring pipeline lives in `scripts/` (demographics → deprivation → vulnerability →
-supply → service desert → market gap → target drill-down), documented in
+supply → support gap (service desert) → market gap → target drill-down), documented in
 [`scripts/README.md`](scripts/README.md). `site/zoom.html` is just a redirect to
 `index.html#map`, kept so old links resolve.
 

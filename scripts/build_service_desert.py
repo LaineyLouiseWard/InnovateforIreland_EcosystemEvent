@@ -314,7 +314,7 @@ def update_geojson(fcs, rows):
 
 def update_meta(meta, rows):
     measures = dict(BASE_MEASURES)            # v, cl, st, dm, is
-    measures["sd"] = "Service desert"
+    measures["sd"] = "Support gap"
     meta["measures"] = measures
     meta["density_km"] = DENSITY_KM   # radius for the "services within N km" tooltip
     allv = {"is": [r["is"] for r in rows],
