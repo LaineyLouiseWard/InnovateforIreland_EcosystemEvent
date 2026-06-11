@@ -401,6 +401,12 @@
   @media(max-width:680px){
     .toolbar .ti span{ display:none; }
     .leftrail{ left:12px; top:12px; width:176px; max-height:calc(100% - 24px); }
+    /* the floating cards collapse to their title bar so the map stays visible on a phone */
+    .legend h4, .supply-card > h4{ cursor:pointer; display:flex; align-items:center; }
+    .legend h4::after, .supply-card > h4::after{ content:"▴"; margin-left:auto; padding-left:8px; color:var(--faint); font-size:10px; }
+    .legend.closed h4::after, .supply-card.closed > h4::after{ content:"▾"; }
+    .legend.closed #legendBox > :not(h4), .legend.closed #gapLegendBox > :not(h4){ display:none; }
+    .supply-card.closed > :not(h4){ display:none; }
     .supply-card .sc-sub{ display:none; }
     .legend .note-region{ font-size:10.5px; }
     .detail{ left:12px; right:12px; width:auto; top:auto; bottom:12px; transform:translateY(calc(100% + 24px)); max-height:60%; }
@@ -413,9 +419,11 @@
     font-size:13.5px; color:#8a1f1f; display:flex; align-items:center; gap:12px; max-width:min(440px,92vw); line-height:1.4; }
   .load-error[hidden]{ display:none; }
   .load-error b{ color:#6e1414; }
-  .loading-sa{ position:absolute; inset:0; display:none; align-items:center; justify-content:center; z-index:700;
-    background:rgba(238,241,246,.6); backdrop-filter:blur(3px); font-family:var(--font); font-size:14px;
-    font-weight:600; color:var(--muted); gap:10px; }
+  /* a status pill, not a blocking overlay: areas draw in behind it as each region's file arrives */
+  .loading-sa{ position:absolute; left:50%; bottom:24px; transform:translateX(-50%); display:none; z-index:700;
+    align-items:center; background:#fff; border:1px solid var(--line); border-radius:999px; padding:9px 17px;
+    box-shadow:var(--shadow-lg); font-family:var(--font); font-size:13px; font-weight:600; color:var(--muted);
+    pointer-events:none; font-variant-numeric:tabular-nums; }
   .loading-sa.on{ display:flex; }
 
   /* ---------------- MARKET GAP (IHA) — the HSE level of the unified map ---------------- */
@@ -1125,28 +1133,32 @@ async function loadSA(name){
     buildSALegend(); applyLevelUI();
   }finally{document.getElementById('loadingSA').classList.remove('on');}
 }
-// load every region's small areas at once → one seamless national small-area view, free to zoom/pan
+// load every region's small areas → one seamless national small-area view, free to zoom/pan.
+// Regions render as they arrive (with a progress count) instead of waiting for all eight files.
 async function loadAllSA(){
   if(!SA_META||!SA_META.regions) return;
   const names=Object.keys(SA_META.regions);
-  document.getElementById('loadingSA').classList.add('on');
+  const ind=document.getElementById('loadingSA');
+  ind.classList.add('on'); ind.textContent=`Loading small areas… 0/${names.length}`;
   try{
-    const fcs=await Promise.all(names.map(async n=>{
-      if(!saCache[n]) saCache[n]=await(await fetch(SA_META.regions[n].file)).json();
-      return saCache[n];
-    }));
-    const merged={type:"FeatureCollection",features:fcs.flatMap(fc=>fc.features)};
+    saMode=true; selected=null; LEVEL="loc";
+    if(layer){ layer.setStyle(f=>({...styleFor(f),fillOpacity:0,weight:.6,color:'#c4c8d6'}));
+      map.fitBounds(layer.getBounds(),{padding:[20,20]}); }
+    muteRegionPaths(null);   // every region is covered by its small areas in the national view
     if(saLayer){map.removeLayer(saLayer);saLayer=null;}
-    saLayer=L.geoJSON(merged,{renderer:saCanvas,style:saStyleFn,
+    saLayer=L.geoJSON(null,{renderer:saCanvas,style:saStyleFn,
       onEachFeature:(f,l)=>l.bindTooltip(()=>saTipFor(f.properties),{className:'tip',sticky:true,opacity:1,direction:'top'})
     }).addTo(map);
-    saMode=true; selected=null; LEVEL="loc";
-    if(layer) layer.setStyle(f=>({...styleFor(f),fillOpacity:0,weight:.6,color:'#c4c8d6'}));
-    muteRegionPaths(null);   // every region is covered by its small areas in the national view
-    map.fitBounds(layer.getBounds(),{padding:[20,20]});
     closeDetail(); buildSALegend(); applyLevelUI();
+    let done=0;
+    await Promise.all(names.map(async n=>{
+      if(!saCache[n]) saCache[n]=await(await fetch(SA_META.regions[n].file)).json();
+      if(!saLayer) return;   // user left the view mid-load
+      saLayer.addData(saCache[n]);
+      done++; ind.textContent=`Loading small areas… ${done}/${names.length}`;
+    }));
   }catch(e){ showLoadError(); throw e; }
-  finally{ document.getElementById('loadingSA').classList.remove('on'); }
+  finally{ ind.classList.remove('on'); ind.textContent='Loading small areas…'; }
 }
 function exitSA(){
   if(!saMode)return;
@@ -1314,6 +1326,18 @@ async function toggleSupply(key,on){
 }
 document.querySelectorAll("#supplyCard input[data-layer]").forEach(cb=>{
   cb.onchange=()=>toggleSupply(cb.dataset.layer, cb.checked);
+});
+
+// on phones the legend / services cards start collapsed and toggle from their title bar,
+// so the map isn't half-hidden behind its own chrome
+const mqNarrow = window.matchMedia("(max-width:680px)");
+document.querySelectorAll(".legend, .supply-card").forEach(card=>{
+  if(mqNarrow.matches) card.classList.add("closed");
+  card.addEventListener("click", e=>{
+    if(!mqNarrow.matches) return;
+    if(!e.target.closest("h4") || e.target.closest(".ipop")) return;
+    card.classList.toggle("closed");
+  });
 });
 
 // ================= service-desert panel (Service-desert measure only) =================
