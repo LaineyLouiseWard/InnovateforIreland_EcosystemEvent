@@ -51,6 +51,10 @@ precision flag (`address`/`town`/`county`) travels with every point (see Limitat
 
 ## 3. Service Desert: fusing demand and supply (per Small Area)
 
+> UI labels (renamed 2026-06-11 for plain language): Service Desert → **Support gap**,
+> Residential gap → **Nursing-home gap**, Need × support → **Need vs support**. The technical
+> names below and the internal field names (`sd`, `rd`, `desert_score`) are unchanged.
+
 The link between *areas* (demand) and *points* (supply) is distance:
 `Service Desert = Vulnerability × (percentile-rank of distance to nearest carer support)`.
 It is multiplied, not averaged, so an area scores high only when it has both high need *and*

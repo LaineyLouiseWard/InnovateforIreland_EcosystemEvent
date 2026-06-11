@@ -662,11 +662,11 @@
     </div>
     <aside class="detail" id="detail" aria-live="polite"><button class="x" id="detailX" aria-label="close">×</button><div id="detailBody"></div></aside>
     <aside class="desert-card" id="desertCard">
-      <h4>Greatest unmet need: service deserts</h4>
-      <div class="d-sub">High vulnerability with the nearest carer support far away.</div>
+      <h4>Widest support gaps</h4>
+      <div class="d-sub">High need with support for carers far away.</div>
       <label class="tg"><input type="checkbox" id="topToggle"> Highlight the worst 100 areas on the map</label>
       <table id="desertTable"></table>
-      <div class="foot">Vulnerability × distance to the nearest carer support (home-care / Family Carers). Distance is from each area's centre to the nearest office, not where care is delivered.</div>
+      <div class="foot">Vulnerability × distance to the nearest support for carers (home-care / Family Carers). Distance is from each area's centre to the nearest office, not where care is delivered.</div>
     </aside>
 
     <!-- HSE level (Market Gap) — same stage, shown when Geography = HSE areas -->
@@ -725,10 +725,10 @@ const MEASURES = {
         gloss:"Disability and over-65 share: who needs care." },
   is: { label:"Hard to reach", sub:"What drives it: how cut off from services people are.",
         gloss:"No-car households: distance from help." },
-  sd: { label:"Service desert", sub:"Need × distance to the nearest home-care / Family Carers office.",
-        gloss:"High need with no carer support nearby." },
-  rd: { label:"Residential gap", sub:"Demand × distance to the nearest nursing home.",
-        gloss:"High care demand, far from a nursing home." },
+  sd: { label:"Support gap", sub:"Need × distance to the nearest home-care / Family Carers office.",
+        gloss:"One ranked score: high need, support for carers far away." },
+  rd: { label:"Nursing-home gap", sub:"Demand × distance to the nearest nursing home.",
+        gloss:"The same score for nursing homes: high care demand, none nearby." },
 };
 const MEAS_KEYS = Object.keys(MEASURES);
 const MEAN_KEY = { v:"vMean", cl:"clMean", st:"stMean", dm:"dmMean", is:"isMean", sd:"sdMean", rd:"rdMean" };
@@ -748,9 +748,9 @@ const BIV = [
 function distRankSA(p){ return p.prd==null?null:p.prd; }
 function distRankR(d){ return d.prdMean==null?null:d.prdMean; }
 const BIVS = {
-  opp:  { label:"Need × support",
-          sub:"Need × distance to support: the dark corner is where to target.",
-          gloss:"High need and far from support.",
+  opp:  { label:"Need vs support",
+          sub:"Need and distance to support, side by side: the dark corner is where to target.",
+          gloss:"The two shown separately: see which one drives an area.",
           xR:distRankR, xSA:distRankSA, xterc:"dist", yl:"Vulnerability", xl:"distance to support" },
 };
 function isBiv(k){ return k in BIVS; }
@@ -1144,7 +1144,7 @@ function saStyleFn(f){
 }
 function saTipFor(p){
   const sc=v=>v==null?'—':Math.round(v);
-  const mval = MEAS==="sd" ? `Service desert ${sc(p.sd)}` : MEAS==="rd" ? `Residential gap ${sc(p.rd)}` : `Vulnerability ${sc(p.v)}`;
+  const mval = MEAS==="sd" ? `Support gap ${sc(p.sd)}` : MEAS==="rd" ? `Nursing-home gap ${sc(p.rd)}` : `Vulnerability ${sc(p.v)}`;
   let s=`<b>${mval}</b>`;
   if(MEAS==="v"){ const f=flagCount(p); s+=`<br>${f? `in Ireland's worst quarter for ${f} of 4 pressures` : "no pressure in Ireland's worst quarter"}`; }
   if(MEAS==="rd"){ if(p.dnn!=null) s+=`<br>${p.dnn} km to nearest nursing home`; }
@@ -1390,7 +1390,7 @@ function buildDesertTable(){
       +`<td class="sc">${Math.round(r.sd)}</td></tr>`;
   }).join("");
   document.getElementById("desertTable").innerHTML=
-    `<tr><th>#</th><th>Nearest town</th><th>Nearest support</th><th>Desert score</th></tr>${rows}`;
+    `<tr><th>#</th><th>Nearest town</th><th>Nearest support</th><th>Gap score</th></tr>${rows}`;
   document.querySelectorAll("#desertTable tr.r").forEach(tr=>{
     const go=async ()=>{ const rg=tr.dataset.region; selected=rg; if(layer) layer.setStyle(styleFor);
       await loadSA(rg);
@@ -1405,7 +1405,7 @@ function toggleTop(on){
     if(!topLayer){
       topLayer=L.layerGroup(TOP.map(r=>
         L.circleMarker([r.lat,r.lon],{ pane:"desert", renderer:desertRenderer, radius:5, fillColor:"#440154", color:"#fff", weight:1.4, fillOpacity:.92 })
-          .bindTooltip(`<b>${r.town||("SA "+(""+r.c).split("/")[0])}</b> · desert ${Math.round(r.sd)} · ${r.dn} km to ${NTLAB[r.nt]||r.nt}`,{className:"tip",direction:"top",opacity:1})
+          .bindTooltip(`<b>${r.town||("SA "+(""+r.c).split("/")[0])}</b> · support gap ${Math.round(r.sd)} · ${r.dn} km to ${NTLAB[r.nt]||r.nt}`,{className:"tip",direction:"top",opacity:1})
           .on("click",()=>{ loadSA(r.region).then(()=>map.setView([r.lat,r.lon],11)); })));
     }
     topLayer.addTo(map);
@@ -1562,7 +1562,7 @@ function drawTownPins(code){
   const t=TARGET_BY[code]; if(!t) return;
   townLayer=L.layerGroup(townsByPlace(t.towns).map(({tn,more})=>
     L.circleMarker([tn.lat,tn.lon],{ pane:"twn", renderer:gapTownRenderer, radius:6, fillColor:"#440154", color:"#fff", weight:1.6, fillOpacity:.92 })
-      .bindTooltip(`<b>${tn.town||('SA '+tn.sa)}</b>${more?` <span style="opacity:.7">+${more} more area${more>1?'s':''}</span>`:""} · desert ${Math.round(tn.desert)}<br>${tn.d_nearest_km} km to nearest ${NTLAB[tn.nearest_type]||tn.nearest_type}${tn.nearest_loc!=="address"?` <span style="opacity:.7">(~${tn.nearest_loc})</span>`:""}`,{className:"tip",direction:"top",opacity:1})
+      .bindTooltip(`<b>${tn.town||('SA '+tn.sa)}</b>${more?` <span style="opacity:.7">+${more} more area${more>1?'s':''}</span>`:""} · support gap ${Math.round(tn.desert)}<br>${tn.d_nearest_km} km to nearest ${NTLAB[tn.nearest_type]||tn.nearest_type}${tn.nearest_loc!=="address"?` <span style="opacity:.7">(~${tn.nearest_loc})</span>`:""}`,{className:"tip",direction:"top",opacity:1})
       .on("click",()=>gapMap.setView([tn.lat,tn.lon],11)))).addTo(gapMap);
 }
 function exitTarget(){
@@ -1577,7 +1577,7 @@ function showTarget(code){
   if(!t){ panel.classList.remove("mode-detail"); return; }
   const gf=gapData.features.find(f=>f.properties.code===code), gp=gf?gf.properties:{};
   const gap=t.market_gap_score;
-  const thLabel = gap>0 ? "Worst service-desert towns to target" : "Highest-need towns here";
+  const thLabel = gap>0 ? "Towns with the widest support gaps" : "Highest-need towns here";
   const pb=loc=> loc==="address" ? "" : `<span class="pbadge ${loc}">~${loc}</span>`;
   const rows=townsByPlace(t.towns).map(({tn,idx,more})=>
     `<tr class="r" data-i="${idx}"><td class="t"><b>${tn.town||('SA '+tn.sa)}</b>${pb(tn.nearest_loc)}`
