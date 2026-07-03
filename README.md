@@ -18,7 +18,7 @@ help and where to put the next service before carers reach crisis.
 ![Carer Map Ireland cycling through its three geography levels: the 8 regions, all 18,919 Census small areas, and the 20 HSE areas ranked by market gap](media/demo.gif)
 
 Built in a day with **Claude Code** at the **AI Build Day**, a hands-on workshop led by
-Jonathan McCrae as part of the Innovate for Ireland iScholars Innovation Ecosystem event. We
+Jonathan McCrea as part of the Innovate for Ireland iScholars Innovation Ecosystem event. We
 scoped and built the prototype together in the room.
 
 ## The problem
